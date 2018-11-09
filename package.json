@@ -1,0 +1,19 @@
+{
+  "name": "ehrstore.postman",
+  "version": "1.0.0",
+  "description": "A README.md file is intended to quickly orient readers to what your project can do.  New to Markdown? [Learn more](http://go.microsoft.com/fwlink/p/?LinkId=524306&clcid=0x409)",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://vd-tfs03:8080/tfs/DefaultCollection/DIPS/_git/EhrStore.Postman"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "newman": "^4.2.2",
+    "newman-reporter-teamcity": "^0.1.11"
+  }
+}
