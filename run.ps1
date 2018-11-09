@@ -12,7 +12,7 @@ exec { &  Get-ChildItem -Path "src\*collection.json" -Recurse | Sort-Object Leng
     }
 }
 
-exec { &  Get-ChildItem -Path "src\*collection.json" -Recurse | Sort-Object Length -Descending | ForEach-Object {
-    newman run $_.FullName  --global-var "Protocol=https" --global-var "ServerHostname=vt-etl-selecta.etl.dips.no" --global-var "ServerPort=4443" --global-var "BasePath=openehr"  -k -r teamcity
-    }
-}
+# exec { &  Get-ChildItem -Path "src\*collection.json" -Recurse | Sort-Object Length -Descending | ForEach-Object {
+#     newman run $_.FullName  --global-var "Protocol=https" --global-var "ServerHostname=vt-etl-selecta.etl.dips.no" --global-var "ServerPort=4443" --global-var "BasePath=openehr"  -k -r teamcity
+#     }
+# }
