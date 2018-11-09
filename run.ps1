@@ -7,4 +7,4 @@ function Exec([scriptblock]$cmd, [string]$errorMessage = "Error executing comman
 
 exec { & npm install }
 
-exec { & newman run ./src/EhrStore.postman_collection.json }
+exec { & newman run ./src/EhrStore.postman_collection.json -r teamcity}
