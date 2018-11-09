@@ -1,3 +1,3 @@
 [submodule "src/openEHR-conformance"]
 	path = src/openEHR-conformance
-	url = http://tfgit/bfj/openEHR-conformance.git
+	url = http://vd-tfs03:8080/tfs/DefaultCollection/DIPS/_git/openEHR-conformance 
