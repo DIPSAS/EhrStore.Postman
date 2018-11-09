@@ -1,254 +1,93 @@
 {
-    "info": {
-        "_postman_id": "e28d8c76-82eb-41e8-bf28-9ba686536b1c",
-        "name": "EhrStore",
-        "description": "openEHR tests",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-    },
-    "item": [{
-            "name": "Get swagger",
-            "event": [{
-                "listen": "test",
-                "script": {
-                    "id": "fac48cff-efea-4adf-ab8c-102b07b8ea06",
-                    "exec": [
-                        "pm.test(\"Status code is 200\", function () {",
-                        "    pm.response.to.have.status(200);",
-                        "});"
-                    ],
-                    "type": "text/javascript"
-                }
-            }],
-            "request": {
-                "method": "GET",
-                "header": [],
-                "body": {
-                    "mode": "raw",
-                    "raw": ""
-                },
-                "url": {
-                    "raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/swagger",
-                    "protocol": "{{Protocol}}",
-                    "host": [
-                        "{{ServerHostname}}"
-                    ],
-                    "port": "{{ServerPort}}",
-                    "path": [
-                        "swagger"
-                    ]
-                }
-            },
-            "response": []
-        },
-        {
-            "name": "Get EhrStore Dashboard",
-            "request": {
-                "method": "GET",
-                "header": [],
-                "body": {
-                    "mode": "raw",
-                    "raw": ""
-                },
-                "url": {
-                    "raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/",
-                    "protocol": "{{Protocol}}",
-                    "host": [
-                        "{{ServerHostname}}"
-                    ],
-                    "port": "{{ServerPort}}",
-                    "path": [
-                        ""
-                    ]
-                },
-                "description": "Dashboard works "
-            },
-            "response": []
-        },
-        {
-            "name": "openEHR REST API: Create EHR",
-            "event": [{
-                    "listen": "prerequest",
-                    "script": {
-                        "id": "f18fc891-b9b4-44c4-bb23-91a92e49cb44",
-                        "exec": [
-                            ""
-                        ],
-                        "type": "text/javascript"
-                    }
-                },
-                {
-                    "listen": "test",
-                    "script": {
-                        "id": "468b3123-8ded-430d-aa0f-2c1e3450b3d6",
-                        "exec": [
-                            "",
-                            "// Get an ehr ID we can work with in later tests",
-                            "var loc = postman.getResponseHeader(\"location\");",
-                            "var ehr = loc.substring(loc.lastIndexOf(\"/\")+1);",
-                            "pm.globals.set(\"EhrId\", ehr);",
-                            "",
-                            "pm.test(\"Status code is 201\", function () {",
-                            "    pm.response.to.have.status(201);",
-                            "});",
-                            "",
-                            "pm.test(\"Location is present\", function () {",
-                            "    pm.response.to.have.header(\"Location\");",
-                            "",
-                            "",
-                            "    ",
-                            "});",
-                            "",
-                            ""
-                        ],
-                        "type": "text/javascript"
-                    }
-                }
-            ],
-            "request": {
-                "method": "POST",
-                "header": [{
-                        "key": "openEHR-AUDIT_DETAILS.committer",
-                        "value": "name=\"postman\"",
-                        "type": "text"
-                    },
-                    {
-                        "key": "Content-Type",
-                        "value": "application/json",
-                        "type": "text"
-                    },
-                    {
-                        "key": "prefer",
-                        "value": "representation",
-                        "type": "text"
-                    }
-                ],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\n  \"_type\": \"EHR_STATUS\",\n  \"subject\": {\n    \"external_ref\": {\n      \"id\": {\n        \"_type\": \"GENERIC_ID\",\n        \"value\": \"{{NewEhrStatusId}}\"\n      },\n      \"namespace\": \"ehr_craft\",\n      \"type\": \"PERSON\"\n    }\n  },\n  \"is_queryable\": false,\n  \"is_modifiable\": false\n}"
-                },
-                "url": {
-                    "raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr",
-                    "protocol": "{{Protocol}}",
-                    "host": [
-                        "{{ServerHostname}}"
-                    ],
-                    "port": "{{ServerPort}}",
-                    "path": [
-                        "{{BasePath}}",
-                        "ehr"
-                    ]
-                }
-            },
-            "response": []
-        },
-        {
-            "name": "openEHR REST API: Get existing EHR",
-            "event": [{
-                "listen": "test",
-                "script": {
-                    "id": "0cb7deb6-40ac-494a-9d16-649fdb7fffda",
-                    "exec": [
-                        "pm.test(\"Status code is 200\", function () {",
-                        "    pm.response.to.have.status(200);",
-                        "});",
-                        "",
-                        "pm.test(\"_type is PATIENT_EHR\", function () {",
-                        "    var jsonData = pm.response.json();",
-                        "    pm.expect(jsonData[\"_type\"]).to.eql(\"PATIENT_EHR\");",
-                        "});"
-                    ],
-                    "type": "text/javascript"
-                }
-            }],
-            "request": {
-                "method": "GET",
-                "header": [],
-                "body": {
-                    "mode": "raw",
-                    "raw": ""
-                },
-                "url": {
-                    "raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}",
-                    "protocol": "{{Protocol}}",
-                    "host": [
-                        "{{ServerHostname}}"
-                    ],
-                    "port": "{{ServerPort}}",
-                    "path": [
-                        "{{BasePath}}",
-                        "ehr",
-                        "{{EhrId}}"
-                    ]
-                }
-            },
-            "response": []
-        }
-    ],
-    "event": [{
-            "listen": "prerequest",
-            "script": {
-                "id": "67334d1a-d92b-4d32-a069-939a9acd16e8",
-                "type": "text/javascript",
-                "exec": [
-                    "function guid() {",
-                    "  function s4() {",
-                    "    return Math.floor((1 + Math.random()) * 0x10000)",
-                    "      .toString(16)",
-                    "      .substring(1);",
-                    "  }",
-                    "  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
-                    "}",
-                    "",
-                    "pm.environment.set(\"NewEhrStatusId\", guid())"
-                ]
-            }
-        },
-        {
-            "listen": "test",
-            "script": {
-                "id": "81ff3692-3e12-465a-80d9-a20646ee1997",
-                "type": "text/javascript",
-                "exec": [
-                    ""
-                ]
-            }
-        }
-    ],
-    "variable": [{
-            "id": "65dd5d5c-259b-495a-902c-ad7ae61a4e60",
-            "key": "ehrId",
-            "value": null,
-            "type": "any"
-        },
-        {
-            "id": "0c8b228b-7b4e-4777-86c3-639334b50031",
-            "key": "Protocol",
-            "value": "https",
-            "type": "string"
-        },
-        {
-            "id": "887b4a33-64f0-4abf-8557-5383e336d922",
-            "key": "ServerHostname",
-            "value": "vt-selecta-srv",
-            "type": "string"
-        },
-        {
-            "id": "617e6c8a-7ca0-4efd-ba2f-3a7bbdc6df1f",
-            "key": "ServerPort",
-            "value": "4443",
-            "type": "string"
-        },
-        {
-            "id": "3633a4e6-65f1-4ba2-96fc-87538610cbae",
-            "key": "BasePath",
-            "value": "openehr",
-            "type": "string"
-        },
-        {
-            "id": "4d0b5a3f-7d8e-47c9-99e2-97133a916922",
-            "key": "NewEhrStatusId",
-            "value": "",
-            "type": "string"
-        }
-    ]
+	"info": {
+		"_postman_id": "a969a4ac-d3d5-480e-b56d-7580fa749a7a",
+		"name": "EhrStore",
+		"description": "EhrStore API tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get EhrStore Swagger Page",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "fac48cff-efea-4adf-ab8c-102b07b8ea06",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/swagger",
+					"protocol": "{{Protocol}}",
+					"host": [
+						"{{ServerHostname}}"
+					],
+					"port": "{{ServerPort}}",
+					"path": [
+						"swagger"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get EhrStore Dashboard",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/",
+					"protocol": "{{Protocol}}",
+					"host": [
+						"{{ServerHostname}}"
+					],
+					"port": "{{ServerPort}}",
+					"path": [
+						""
+					]
+				},
+				"description": "Dashboard works "
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "67334d1a-d92b-4d32-a069-939a9acd16e8",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "81ff3692-3e12-465a-80d9-a20646ee1997",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
 }
