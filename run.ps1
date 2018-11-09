@@ -6,4 +6,8 @@ function Exec([scriptblock]$cmd, [string]$errorMessage = "Error executing comman
 }
 exec { & npm install -g newman newman-reporter-teamcity }
 
-exec { & newman run ./src/EhrStore.postman_collection.json -r teamcity}
+exec { &  Get-ChildItem -Path "src\*collection.json" -Recurse | Sort-Object Length -Descending | ForEach-Object {
+    newman run $_.FullName -r teamcity
+}
+}
+
