@@ -69,6 +69,20 @@
 		},
 		{
 			"name": "Status Ping",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7139f272-9b68-498f-8bfb-a2b4dab3a068",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -77,13 +91,36 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": ""
+					"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/status/ping",
+					"protocol": "{{Protocol}}",
+					"host": [
+						"{{ServerHostname}}"
+					],
+					"port": "{{ServerPort}}",
+					"path": [
+						"status",
+						"ping"
+					]
 				}
 			},
 			"response": []
 		},
 		{
 			"name": "Status Metrics",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e3581083-6c47-43ba-97f7-36b90026468a",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -92,13 +129,36 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": ""
+					"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/status/metrics",
+					"protocol": "{{Protocol}}",
+					"host": [
+						"{{ServerHostname}}"
+					],
+					"port": "{{ServerPort}}",
+					"path": [
+						"status",
+						"metrics"
+					]
 				}
 			},
 			"response": []
 		},
 		{
 			"name": "Metrics",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0dc7c6a8-8657-45aa-be41-cbc8e365d533",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -107,7 +167,15 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": ""
+					"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/metrics",
+					"protocol": "{{Protocol}}",
+					"host": [
+						"{{ServerHostname}}"
+					],
+					"port": "{{ServerPort}}",
+					"path": [
+						"metrics"
+					]
 				}
 			},
 			"response": []
