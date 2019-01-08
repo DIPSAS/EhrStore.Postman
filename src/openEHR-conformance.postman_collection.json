@@ -1,0 +1,336 @@
+{
+	"info": {
+		"_postman_id": "bd1202ba-d68f-4987-bced-87edd9a2aa3a",
+		"name": "openEHR-conformance",
+		"description": "openEHR REST API conformance testing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "EHR",
+			"item": [
+				{
+					"name": "Create EHR",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "f18fc891-b9b4-44c4-bb23-91a92e49cb44",
+								"exec": [
+									"function guid() {",
+									"  function s4() {",
+									"    return Math.floor((1 + Math.random()) * 0x10000)",
+									"      .toString(16)",
+									"      .substring(1);",
+									"  }",
+									"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
+									"}",
+									"pm.globals.set(\"NewEhrStatusId\", guid());",
+									" "
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "468b3123-8ded-430d-aa0f-2c1e3450b3d6",
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"// Get an ehr ID we can work with in later tests",
+									"var loc = postman.getResponseHeader(\"Location\");",
+									"var ehr = loc.substring(loc.lastIndexOf(\"/\")+1);",
+									"pm.globals.set(\"EhrId\", ehr);",
+									"",
+									"pm.test(\"Location is present\", function () {",
+									"    pm.response.to.have.header(\"Location\");",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "openEHR-AUDIT_DETAILS.committer",
+								"value": "name=\"postman test\"",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Prefer",
+								"value": "representation",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"_type\": \"EHR_STATUS\",\n  \"subject\": {\n    \"external_ref\": {\n      \"id\": {\n        \"_type\": \"GENERIC_ID\",\n        \"value\": \"{{NewEhrStatusId}}\"\n      },\n      \"namespace\": \"ehr_craft\",\n      \"type\": \"PERSON\"\n    }\n  },\n  \"is_queryable\": false,\n  \"is_modifiable\": false\n}"
+						},
+						"url": {
+							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr",
+							"protocol": "{{Protocol}}",
+							"host": [
+								"{{ServerHostname}}"
+							],
+							"port": "{{ServerPort}}",
+							"path": [
+								"{{BasePath}}",
+								"ehr"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get existing EHR",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0cb7deb6-40ac-494a-9d16-649fdb7fffda",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"const patientEhrSchema = {",
+									"    \"type\": [\"object\"],",
+									"    \"properties\" : {",
+									"        \"system_id\" : {",
+									"            \"type\":\"object\",",
+									"            \"properties\" : {",
+									"                \"value\":\"string\"",
+									"            }",
+									"        },",
+									"        \"ehr_id\" : {",
+									"            \"type\":\"object\",",
+									"            \"properties\" : {",
+									"                \"value\":\"string\"",
+									"            }",
+									"        },",
+									"        \"time_created\" : {",
+									"            \"type\":\"object\",",
+									"            \"properties\" : {",
+									"                \"value\":\"string\"",
+									"            }",
+									"        },",
+									"        \"ehr_status\" : {",
+									"            \"type\":\"object\",",
+									"            \"properties\" : {",
+									"                \"uid\":{",
+									"                    \"type\": \"object\",",
+									"                    \"properties\":{",
+									"                        \"_type\" : \"string\",",
+									"                        \"value\" : \"string\"",
+									"                    }",
+									"                },",
+									"                \"subject\": {",
+									"                    \"type\":\"object\",",
+									"                    \"properties\" : {",
+									"                        \"external_ref\" : {",
+									"                            \"type\":\"object\",",
+									"                            \"properties\": {",
+									"                                \"id\" : {",
+									"                                    \"type\":\"object\",",
+									"                                    \"properties\" : {",
+									"                                        \"_type\" : \"string\",",
+									"                                        \"value\" : \"string\"",
+									"                                    }",
+									"                                }",
+									"                            }",
+									"                        }",
+									"                    }",
+									"                },",
+									"                \"is_modifyable\": \"bool\",",
+									"                \"is_queryable\" : \"bool\"",
+									"            }",
+									"        }",
+									"    }",
+									"}",
+									"",
+									"patientEhr = JSON.parse(responseBody)",
+									"tests[\"Response is a valid PATIENT_EHR\"] = tv4.validate(patientEhr, patientEhrSchema)"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "92eeb239-b4f4-40da-96c7-97bb90137bac",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}",
+							"protocol": "{{Protocol}}",
+							"host": [
+								"{{ServerHostname}}"
+							],
+							"port": "{{ServerPort}}",
+							"path": [
+								"{{BasePath}}",
+								"ehr",
+								"{{EhrId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Query",
+			"item": [
+				{
+					"name": "Execute AQL query",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "899fbbdd-513c-492c-8a90-31a9bc1ecebf",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"headers are present\", function () {",
+									"    pm.response.to.have.header(\"ETag\");",
+									"    pm.response.to.have.header(\"query\");",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"});",
+									"",
+									"const resultSetSchema = {",
+									"    \"type\" : \"object\",",
+									"    \"properties\" : {",
+									"        \"_type\" : {\"type\":\"string\"},",
+									"        \"totalResults\" : {\"type\":\"number\"},",
+									"        \"columns\" : {\"type\":\"array\"},",
+									"        \"rows\" : {\"type\":\"array\"},",
+									"        \"meta\" : {",
+									"            \"type\" : \"object\",",
+									"            \"properties\" : {",
+									"                 \"_type\" : {\"type\":\"string\"},",
+									"                \"_schema_version\" : {\"type\":\"string\"},",
+									"                \"_created\" : {\"type\":\"string\", \"format\":\"date-time\"},",
+									"                \"_generator\" : {\"type\":\"string\"},",
+									"                \"_executed_aql\" : {\"type\":\"string\"}",
+									"            },",
+									"            \"required\" : [\"_type\", \"_schema_version\", \"_created\", \"_generator\",\"_executed_aql\"]",
+									"        },",
+									"        \"required\" : [\"_type\",\"totalResults\",\"columns\",\"rows\",\"meta\"]",
+									"    } ",
+									"}",
+									"",
+									"resultSet = JSON.parse(responseBody);",
+									"var validationResult = tv4.validate(resultSet, resultSetSchema);",
+									"console.log(validationResult);",
+									"if(!validationResult){",
+									"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
+									"}",
+									"",
+									"tests[\"Response is a valid RESULT_SET\"] = validationResult;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/query/aql?q=select c from composition c",
+							"protocol": "{{Protocol}}",
+							"host": [
+								"{{ServerHostname}}"
+							],
+							"port": "{{ServerPort}}",
+							"path": [
+								"{{BasePath}}",
+								"query",
+								"aql"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "select c from composition c"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Definition",
+			"item": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "89427a6e-4bde-405e-afa8-67171961abcc",
+				"type": "text/javascript",
+				"exec": [
+					"",
+					"",
+					"if(!pm.globals.get(\"Protocol\")){",
+					"    pm.globals.set(\"Protocol\", \"http\");",
+					"}",
+					"if(!pm.globals.get(\"ServerHostname\")){",
+					"    pm.globals.set(\"ServerHostname\", \"localhost\");",
+					"}",
+					"",
+					"if(!pm.globals.get(\"ServerPort\")){",
+					"    pm.globals.set(\"ServerPort\", \"9000\");",
+					"}",
+					"",
+					"if(!pm.globals.get(\"BasePath\")){",
+					"    pm.globals.set(\"BasePath\", \"openehr\");",
+					"}",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "90f19af6-a02a-40f4-8a08-46c760c598f5",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
