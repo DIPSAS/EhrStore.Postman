@@ -276,9 +276,105 @@
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"headers are present\", function () {",
+									"pm.test(\"Headers are present\", function () {",
 									"    pm.response.to.have.header(\"ETag\");",
 									"    pm.response.to.have.header(\"query\");",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"});",
+									"",
+									"pm.test(\"Query in response header is correct\", function () {",
+									"    var query = postman.getResponseHeader(\"query\");",
+									"    pm.expect(query).to.eql(pm.globals.get(\"q\"));",
+									"});",
+									"",
+									"",
+									"const resultSetSchema = {",
+									"    \"type\" : \"object\",",
+									"    \"properties\" : {",
+									"        \"_type\" : {\"type\":\"string\"},",
+									"        \"totalResults\" : {\"type\":\"number\"},",
+									"        \"columns\" : {\"type\":\"array\"},",
+									"        \"rows\" : {\"type\":\"array\"},",
+									"        \"meta\" : {",
+									"            \"type\" : \"object\",",
+									"            \"properties\" : {",
+									"                 \"_type\" : {\"type\":\"string\"},",
+									"                \"_schema_version\" : {\"type\":\"string\"},",
+									"                \"_created\" : {\"type\":\"string\", \"format\":\"date-time\"},",
+									"                \"_generator\" : {\"type\":\"string\"},",
+									"                \"_executed_aql\" : {\"type\":\"string\"}",
+									"            },",
+									"            \"required\" : [\"_type\", \"_schema_version\", \"_created\", \"_generator\"]",
+									"        },",
+									"        \"required\" : [\"_type\",\"totalResults\",\"columns\",\"rows\",\"meta\"]",
+									"    } ",
+									"}",
+									"",
+									"resultSet = JSON.parse(responseBody);",
+									"var validationResult = tv4.validate(resultSet, resultSetSchema);",
+									"console.log(validationResult);",
+									"if(!validationResult){",
+									"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
+									"}",
+									"",
+									"tests[\"Response is a valid RESULT_SET\"] = validationResult;"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "d34593d5-47f2-4a18-bbbc-a56f1877904a",
+								"exec": [
+									"pm.globals.set(\"q\", \"select c from composition c\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/query/aql?q={{q}}",
+							"protocol": "{{Protocol}}",
+							"host": [
+								"{{ServerHostname}}"
+							],
+							"port": "{{ServerPort}}",
+							"path": [
+								"{{BasePath}}",
+								"query",
+								"aql"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "{{q}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Execute AQL query (POST)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "899fbbdd-513c-492c-8a90-31a9bc1ecebf",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Headers are present\", function () {",
 									"    pm.response.to.have.header(\"Content-Type\");",
 									"});",
 									"",
@@ -315,6 +411,124 @@
 								],
 								"type": "text/javascript"
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "d34593d5-47f2-4a18-bbbc-a56f1877904a",
+								"exec": [
+									"pm.globals.set(\"q\", \"select c from composition c\");",
+									"pm.globals.set(\"fetch\", 1);",
+									"pm.globals.set(\"offset\", 2);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"q\": \"{{q}}\",\n\t\"fetch\" : {{fetch}},\n\t\"offset\" : {{offset}}\n}"
+						},
+						"url": {
+							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/query/aql",
+							"protocol": "{{Protocol}}",
+							"host": [
+								"{{ServerHostname}}"
+							],
+							"port": "{{ServerPort}}",
+							"path": [
+								"{{BasePath}}",
+								"query",
+								"aql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Execute AQL query with fetch and offset",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "899fbbdd-513c-492c-8a90-31a9bc1ecebf",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Headers are present\", function () {",
+									"    pm.response.to.have.header(\"ETag\");",
+									"    pm.response.to.have.header(\"query\");",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"});",
+									"",
+									"const resultSetSchema = {",
+									"    \"type\" : \"object\",",
+									"    \"properties\" : {",
+									"        \"_type\" : {\"type\":\"string\"},",
+									"        \"totalResults\" : {\"type\":\"number\"},",
+									"        \"columns\" : {\"type\":\"array\"},",
+									"        \"rows\" : {\"type\":\"array\"},",
+									"        \"meta\" : {",
+									"            \"type\" : \"object\",",
+									"            \"properties\" : {",
+									"                 \"_type\" : {\"type\":\"string\"},",
+									"                \"_schema_version\" : {\"type\":\"string\"},",
+									"                \"_created\" : {\"type\":\"string\", \"format\":\"date-time\"},",
+									"                \"_generator\" : {\"type\":\"string\"},",
+									"                \"_executed_aql\" : {\"type\":\"string\"}",
+									"            },",
+									"            \"required\" : [\"_type\", \"_schema_version\", \"_created\", \"_generator\"]",
+									"        },",
+									"        \"required\" : [\"_type\",\"totalResults\",\"columns\",\"rows\",\"meta\"]",
+									"    } ",
+									"}",
+									"",
+									"resultSet = JSON.parse(responseBody);",
+									"var validationResult = tv4.validate(resultSet, resultSetSchema);",
+									"console.log(validationResult);",
+									"if(!validationResult){",
+									"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
+									"}",
+									"",
+									"tests[\"Response is a valid RESULT_SET\"] = validationResult;",
+									"",
+									"",
+									"pm.test(\"Returns correct number of results\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.totalResults).to.eql(pm.globals.get(\"fetch\"));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "88bb750b-1ee5-4171-b07b-8c06815b24f2",
+								"exec": [
+									"pm.globals.set(\"fetch\", 1);",
+									"pm.globals.set(\"offset\", 2);"
+								],
+								"type": "text/javascript"
+							}
 						}
 					],
 					"request": {
@@ -325,7 +539,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/query/aql?q=select c from composition c",
+							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/query/aql?q=select c from composition c&fetch={{fetch}}&offset={{offset}}",
 							"protocol": "{{Protocol}}",
 							"host": [
 								"{{ServerHostname}}"
@@ -340,6 +554,148 @@
 								{
 									"key": "q",
 									"value": "select c from composition c"
+								},
+								{
+									"key": "fetch",
+									"value": "{{fetch}}"
+								},
+								{
+									"key": "offset",
+									"value": "{{offset}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Execute invalid AQL query",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "899fbbdd-513c-492c-8a90-31a9bc1ecebf",
+								"exec": [
+									"pm.test(\"Status code is 400 bad request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"const responseSchema = {",
+									"    \"type\" : \"object\",",
+									"    \"properties\" : {",
+									"        \"message\" : {\"type\":\"string\"},",
+									"    },",
+									"    required: [\"message\"]",
+									"};",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"var validationResult = tv4.validate(response, responseSchema);",
+									"console.log(validationResult);",
+									"if(!validationResult){",
+									"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
+									"}",
+									"",
+									"tests[\"Response contains an error message\"] = validationResult;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/query/aql?q=select ",
+							"protocol": "{{Protocol}}",
+							"host": [
+								"{{ServerHostname}}"
+							],
+							"port": "{{ServerPort}}",
+							"path": [
+								"{{BasePath}}",
+								"query",
+								"aql"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "select "
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Execute invalid AQL query (POST)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "899fbbdd-513c-492c-8a90-31a9bc1ecebf",
+								"exec": [
+									"pm.test(\"Status code is 400 bad request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"const responseSchema = {",
+									"    \"type\" : \"object\",",
+									"    \"properties\" : {",
+									"        \"message\" : {\"type\":\"string\"},",
+									"    },",
+									"    required: [\"message\"]",
+									"};",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"var validationResult = tv4.validate(response, responseSchema);",
+									"console.log(validationResult);",
+									"if(!validationResult){",
+									"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
+									"}",
+									"",
+									"tests[\"Response contains an error message\"] = validationResult;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"q\": \"select\"\n}"
+						},
+						"url": {
+							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/query/aql?",
+							"protocol": "{{Protocol}}",
+							"host": [
+								"{{ServerHostname}}"
+							],
+							"port": "{{ServerPort}}",
+							"path": [
+								"{{BasePath}}",
+								"query",
+								"aql"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "select ",
+									"disabled": true
 								}
 							]
 						}
