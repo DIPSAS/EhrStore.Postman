@@ -915,7 +915,7 @@
 					"response": []
 				},
 				{
-					"name": "Create new composition to invalidEHR ID Copy",
+					"name": "Create new composition to invalid EHR ID",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1029,13 +1029,7 @@
 									"  }",
 									"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
 									"}",
-									"pm.globals.set(\"newGuid\", guid());",
-									"",
-									"",
-									"pm.globals.set(\"Protocol\", \"http\");",
-									"pm.globals.set(\"ServerHostname\", \"localhost\");",
-									"pm.globals.set(\"ServerPort\", \"9000\");",
-									" "
+									"pm.globals.set(\"newGuid\", guid());"
 								],
 								"type": "text/javascript"
 							}
