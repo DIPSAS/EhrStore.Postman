@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "bd1202ba-d68f-4987-bced-87edd9a2aa3a",
+		"_postman_id": "83d7e3cb-cefa-415e-9ce6-09930caf3d4b",
 		"name": "openEHR-conformance",
 		"description": "openEHR REST API conformance testing",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -200,6 +200,64 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Get nonexisting EHR",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0cb7deb6-40ac-494a-9d16-649fdb7fffda",
+								"exec": [
+									"pm.test(\"Status code is 404 not found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "92eeb239-b4f4-40da-96c7-97bb90137bac",
+								"exec": [
+									"function guid() {",
+									"  function s4() {",
+									"    return Math.floor((1 + Math.random()) * 0x10000)",
+									"      .toString(16)",
+									"      .substring(1);",
+									"  }",
+									"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
+									"}",
+									"pm.globals.set(\"NonExistingEhrId\", guid());",
+									" "
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{NonExistingEhrId}}",
+							"protocol": "{{Protocol}}",
+							"host": [
+								"{{ServerHostname}}"
+							],
+							"port": "{{ServerPort}}",
+							"path": [
+								"{{BasePath}}",
+								"ehr",
+								"{{NonExistingEhrId}}"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -240,7 +298,7 @@
 									"                \"_generator\" : {\"type\":\"string\"},",
 									"                \"_executed_aql\" : {\"type\":\"string\"}",
 									"            },",
-									"            \"required\" : [\"_type\", \"_schema_version\", \"_created\", \"_generator\",\"_executed_aql\"]",
+									"            \"required\" : [\"_type\", \"_schema_version\", \"_created\", \"_generator\"]",
 									"        },",
 									"        \"required\" : [\"_type\",\"totalResults\",\"columns\",\"rows\",\"meta\"]",
 									"    } ",
