@@ -833,7 +833,7 @@
 					"response": []
 				},
 				{
-					"name": "Create new composition to nonexisting EHR ID",
+					"name": "Create new composition with nonexisting EHR ID",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -915,7 +915,7 @@
 					"response": []
 				},
 				{
-					"name": "Create new composition to invalid EHR ID",
+					"name": "Create new composition with invalid EHR ID",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1234,7 +1234,7 @@
 							"script": {
 								"id": "302c6309-ca1e-4188-8073-9392b4325a8e",
 								"exec": [
-									"pm.test(\"Status code is 200 created\", function () {",
+									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
@@ -1380,6 +1380,277 @@
 								"{{ServerHostname}}"
 							],
 							"port": "{{ServerPort}}{{contributionPath}}"
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get nonexisting contribution",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "302c6309-ca1e-4188-8073-9392b4325a8e",
+								"exec": [
+									"pm.test(\"Status code is 404 not found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}/contribution/this-one-does-not-exist",
+							"protocol": "{{Protocol}}",
+							"host": [
+								"{{ServerHostname}}"
+							],
+							"port": "{{ServerPort}}",
+							"path": [
+								"{{BasePath}}",
+								"ehr",
+								"{{EhrId}}",
+								"contribution",
+								"this-one-does-not-exist"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create new empty Folder",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+								"exec": [
+									"function guid() {",
+									"  function s4() {",
+									"    return Math.floor((1 + Math.random()) * 0x10000)",
+									"      .toString(16)",
+									"      .substring(1);",
+									"  }",
+									"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
+									"}",
+									"pm.globals.set(\"newGuid\", guid());"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+								"exec": [
+									"pm.test(\"Status code is 201 created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var schema = {",
+									"  \"type\": \"object\",",
+									"  \"required\": [\"uid\", \"_type\"],",
+									"  \"properties\": {",
+									"    \"_type\": {",
+									"      \"type\": \"string\"",
+									"    },",
+									"    \"uid\": {",
+									"      \"type\": \"object\",",
+									"      \"required\": [\"_type\",\"value\"],",
+									"      \"properties\": {",
+									"        \"_type\": {",
+									"          \"type\": \"string\"",
+									"        },",
+									"        \"value\": {",
+									"          \"type\": \"string\"",
+									"        }",
+									"      }",
+									"    }",
+									"  }",
+									"};",
+									"",
+									"folder = JSON.parse(responseBody)",
+									"validationResult = tv4.validate(folder, schema);",
+									"console.log(validationResult);",
+									"if(!validationResult){",
+									"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
+									"}",
+									"tests[\"Response is a valid FOLDER\"] = validationResult;",
+									"",
+									"pm.test(\"Response headers are present\", function () {",
+									"    pm.response.to.have.header(\"Location\");",
+									"    pm.response.to.have.header(\"ETag\");",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"});",
+									"",
+									"var folderPath = postman.getResponseHeader(\"Location\");",
+									"pm.globals.set(\"folderPath\", folderPath);",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Prefer",
+								"type": "text",
+								"value": "return=representation"
+							},
+							{
+								"key": "openEHR-AUDIT_DETAILS.committer",
+								"type": "text",
+								"value": "name=\"John Doe\""
+							},
+							{
+								"key": "openEHR-VERSION.lifecycle_state",
+								"type": "text",
+								"value": "code_string=\"532\""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\r\n{\r\n  \"_type\": \"FOLDER\",\r\n  \"items\": [],\r\n  \"folders\": []\r\n}"
+						},
+						"url": {
+							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}/directory",
+							"protocol": "{{Protocol}}",
+							"host": [
+								"{{ServerHostname}}"
+							],
+							"port": "{{ServerPort}}",
+							"path": [
+								"{{BasePath}}",
+								"ehr",
+								"{{EhrId}}",
+								"directory"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get empty folder",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var schema = {",
+									"  \"type\": \"object\",",
+									"  \"required\": [\"uid\", \"_type\"],",
+									"  \"properties\": {",
+									"    \"_type\": {",
+									"      \"type\": \"string\"",
+									"    },",
+									"    \"uid\": {",
+									"      \"type\": \"object\",",
+									"      \"required\": [\"_type\",\"value\"],",
+									"      \"properties\": {",
+									"        \"_type\": {",
+									"          \"type\": \"string\"",
+									"        },",
+									"        \"value\": {",
+									"          \"type\": \"string\"",
+									"        }",
+									"      }",
+									"    }",
+									"  }",
+									"};",
+									"",
+									"folder = JSON.parse(responseBody)",
+									"validationResult = tv4.validate(folder, schema);",
+									"console.log(validationResult);",
+									"if(!validationResult){",
+									"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
+									"}",
+									"tests[\"Response is a valid FOLDER\"] = validationResult;",
+									"",
+									"pm.test(\"Response headers are present\", function () {",
+									"    pm.response.to.have.header(\"Location\");",
+									"    pm.response.to.have.header(\"ETag\");",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"});",
+									"",
+									"var folderPath = postman.getResponseHeader(\"Location\");",
+									"pm.globals.set(\"folderPath\", folderPath);",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Prefer",
+								"type": "text",
+								"value": "return=representation"
+							},
+							{
+								"key": "openEHR-AUDIT_DETAILS.committer",
+								"type": "text",
+								"value": "name=\"John Doe\""
+							},
+							{
+								"key": "openEHR-VERSION.lifecycle_state",
+								"type": "text",
+								"value": "code_string=\"532\""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}{{folderPath}}",
+							"protocol": "{{Protocol}}",
+							"host": [
+								"{{ServerHostname}}"
+							],
+							"port": "{{ServerPort}}{{folderPath}}"
 						}
 					},
 					"response": []
@@ -1755,7 +2026,7 @@
 								"id": "88bb750b-1ee5-4171-b07b-8c06815b24f2",
 								"exec": [
 									"pm.globals.set(\"fetch\", 1);",
-									"pm.globals.set(\"offset\", 2);"
+									"pm.globals.set(\"offset\", 1);"
 								],
 								"type": "text/javascript"
 							}
