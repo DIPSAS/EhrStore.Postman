@@ -10,1650 +10,2090 @@
 			"name": "EHR",
 			"item": [
 				{
-					"name": "Create EHR",
-					"event": [
+					"name": "EHR",
+					"item": [
 						{
-							"listen": "prerequest",
-							"script": {
-								"id": "f18fc891-b9b4-44c4-bb23-91a92e49cb44",
-								"exec": [
-									"function guid() {",
-									"  function s4() {",
-									"    return Math.floor((1 + Math.random()) * 0x10000)",
-									"      .toString(16)",
-									"      .substring(1);",
-									"  }",
-									"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
-									"}",
-									"pm.globals.set(\"NewEhrStatusId\", guid());",
-									" "
+							"name": "Create EHR",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "f18fc891-b9b4-44c4-bb23-91a92e49cb44",
+										"exec": [
+											"function guid() {",
+											"  function s4() {",
+											"    return Math.floor((1 + Math.random()) * 0x10000)",
+											"      .toString(16)",
+											"      .substring(1);",
+											"  }",
+											"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
+											"}",
+											"pm.globals.set(\"NewEhrStatusId\", guid());",
+											" "
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "468b3123-8ded-430d-aa0f-2c1e3450b3d6",
+										"exec": [
+											"pm.test(\"Status code is 201\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"// Get an ehr ID we can work with in later tests",
+											"var loc = postman.getResponseHeader(\"Location\");",
+											"var ehr = loc.substring(loc.lastIndexOf(\"/\")+1);",
+											"pm.globals.set(\"EhrId\", ehr);",
+											"",
+											"pm.test(\"Location is present\", function () {",
+											"    pm.response.to.have.header(\"Location\");",
+											"});",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "openEHR-AUDIT_DETAILS.committer",
+										"value": "name=\"postman test\"",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Prefer",
+										"value": "representation",
+										"type": "text"
+									}
 								],
-								"type": "text/javascript"
-							}
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"_type\": \"EHR_STATUS\",\n  \"subject\": {\n    \"external_ref\": {\n      \"id\": {\n        \"_type\": \"GENERIC_ID\",\n        \"value\": \"{{NewEhrStatusId}}\"\n      },\n      \"namespace\": \"ehr_craft\",\n      \"type\": \"PERSON\"\n    }\n  },\n  \"is_queryable\": false,\n  \"is_modifiable\": false\n}"
+								},
+								"url": {
+									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr",
+									"protocol": "{{Protocol}}",
+									"host": [
+										"{{ServerHostname}}"
+									],
+									"port": "{{ServerPort}}",
+									"path": [
+										"{{BasePath}}",
+										"ehr"
+									]
+								}
+							},
+							"response": []
 						},
 						{
-							"listen": "test",
-							"script": {
-								"id": "468b3123-8ded-430d-aa0f-2c1e3450b3d6",
-								"exec": [
-									"pm.test(\"Status code is 201\", function () {",
-									"    pm.response.to.have.status(201);",
-									"});",
-									"",
-									"// Get an ehr ID we can work with in later tests",
-									"var loc = postman.getResponseHeader(\"Location\");",
-									"var ehr = loc.substring(loc.lastIndexOf(\"/\")+1);",
-									"pm.globals.set(\"EhrId\", ehr);",
-									"",
-									"pm.test(\"Location is present\", function () {",
-									"    pm.response.to.have.header(\"Location\");",
-									"});",
-									"",
-									""
-								],
-								"type": "text/javascript"
-							}
+							"name": "Get existing EHR",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "0cb7deb6-40ac-494a-9d16-649fdb7fffda",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"",
+											"const patientEhrSchema = {",
+											"    \"type\": [\"object\"],",
+											"    \"properties\" : {",
+											"        \"system_id\" : {",
+											"            \"type\":\"object\",",
+											"            \"properties\" : {",
+											"                \"value\":\"string\"",
+											"            }",
+											"        },",
+											"        \"ehr_id\" : {",
+											"            \"type\":\"object\",",
+											"            \"properties\" : {",
+											"                \"value\":\"string\"",
+											"            }",
+											"        },",
+											"        \"time_created\" : {",
+											"            \"type\":\"object\",",
+											"            \"properties\" : {",
+											"                \"value\":\"string\"",
+											"            }",
+											"        },",
+											"        \"ehr_status\" : {",
+											"            \"type\":\"object\",",
+											"            \"properties\" : {",
+											"                \"uid\":{",
+											"                    \"type\": \"object\",",
+											"                    \"properties\":{",
+											"                        \"_type\" : \"string\",",
+											"                        \"value\" : \"string\"",
+											"                    }",
+											"                },",
+											"                \"subject\": {",
+											"                    \"type\":\"object\",",
+											"                    \"properties\" : {",
+											"                        \"external_ref\" : {",
+											"                            \"type\":\"object\",",
+											"                            \"properties\": {",
+											"                                \"id\" : {",
+											"                                    \"type\":\"object\",",
+											"                                    \"properties\" : {",
+											"                                        \"_type\" : \"string\",",
+											"                                        \"value\" : \"string\"",
+											"                                    }",
+											"                                }",
+											"                            }",
+											"                        }",
+											"                    }",
+											"                },",
+											"                \"is_modifyable\": \"bool\",",
+											"                \"is_queryable\" : \"bool\"",
+											"            }",
+											"        }",
+											"    }",
+											"}",
+											"",
+											"patientEhr = JSON.parse(responseBody)",
+											"",
+											"validationResult =  tv4.validate(patientEhr, patientEhrSchema);",
+											"console.log(validationResult);",
+											"if(!validationResult){",
+											"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
+											"}",
+											"",
+											"tests[\"Response is a valid PATIENT_EHR\"] = validationResult;",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "92eeb239-b4f4-40da-96c7-97bb90137bac",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}",
+									"protocol": "{{Protocol}}",
+									"host": [
+										"{{ServerHostname}}"
+									],
+									"port": "{{ServerPort}}",
+									"path": [
+										"{{BasePath}}",
+										"ehr",
+										"{{EhrId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get nonexisting EHR",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "0cb7deb6-40ac-494a-9d16-649fdb7fffda",
+										"exec": [
+											"pm.test(\"Status code is 404 not found\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "92eeb239-b4f4-40da-96c7-97bb90137bac",
+										"exec": [
+											"function guid() {",
+											"  function s4() {",
+											"    return Math.floor((1 + Math.random()) * 0x10000)",
+											"      .toString(16)",
+											"      .substring(1);",
+											"  }",
+											"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
+											"}",
+											"pm.globals.set(\"NonExistingEhrId\", guid());",
+											" "
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{NonExistingEhrId}}",
+									"protocol": "{{Protocol}}",
+									"host": [
+										"{{ServerHostname}}"
+									],
+									"port": "{{ServerPort}}",
+									"path": [
+										"{{BasePath}}",
+										"ehr",
+										"{{NonExistingEhrId}}"
+									]
+								}
+							},
+							"response": []
 						}
 					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "openEHR-AUDIT_DETAILS.committer",
-								"value": "name=\"postman test\"",
-								"type": "text"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							},
-							{
-								"key": "Prefer",
-								"value": "representation",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"_type\": \"EHR_STATUS\",\n  \"subject\": {\n    \"external_ref\": {\n      \"id\": {\n        \"_type\": \"GENERIC_ID\",\n        \"value\": \"{{NewEhrStatusId}}\"\n      },\n      \"namespace\": \"ehr_craft\",\n      \"type\": \"PERSON\"\n    }\n  },\n  \"is_queryable\": false,\n  \"is_modifiable\": false\n}"
-						},
-						"url": {
-							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr",
-							"protocol": "{{Protocol}}",
-							"host": [
-								"{{ServerHostname}}"
-							],
-							"port": "{{ServerPort}}",
-							"path": [
-								"{{BasePath}}",
-								"ehr"
-							]
-						}
-					},
-					"response": []
+					"_postman_isSubFolder": true
 				},
 				{
-					"name": "Get existing EHR",
-					"event": [
+					"name": "Composition",
+					"item": [
 						{
-							"listen": "test",
-							"script": {
-								"id": "0cb7deb6-40ac-494a-9d16-649fdb7fffda",
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"",
-									"const patientEhrSchema = {",
-									"    \"type\": [\"object\"],",
-									"    \"properties\" : {",
-									"        \"system_id\" : {",
-									"            \"type\":\"object\",",
-									"            \"properties\" : {",
-									"                \"value\":\"string\"",
-									"            }",
-									"        },",
-									"        \"ehr_id\" : {",
-									"            \"type\":\"object\",",
-									"            \"properties\" : {",
-									"                \"value\":\"string\"",
-									"            }",
-									"        },",
-									"        \"time_created\" : {",
-									"            \"type\":\"object\",",
-									"            \"properties\" : {",
-									"                \"value\":\"string\"",
-									"            }",
-									"        },",
-									"        \"ehr_status\" : {",
-									"            \"type\":\"object\",",
-									"            \"properties\" : {",
-									"                \"uid\":{",
-									"                    \"type\": \"object\",",
-									"                    \"properties\":{",
-									"                        \"_type\" : \"string\",",
-									"                        \"value\" : \"string\"",
-									"                    }",
-									"                },",
-									"                \"subject\": {",
-									"                    \"type\":\"object\",",
-									"                    \"properties\" : {",
-									"                        \"external_ref\" : {",
-									"                            \"type\":\"object\",",
-									"                            \"properties\": {",
-									"                                \"id\" : {",
-									"                                    \"type\":\"object\",",
-									"                                    \"properties\" : {",
-									"                                        \"_type\" : \"string\",",
-									"                                        \"value\" : \"string\"",
-									"                                    }",
-									"                                }",
-									"                            }",
-									"                        }",
-									"                    }",
-									"                },",
-									"                \"is_modifyable\": \"bool\",",
-									"                \"is_queryable\" : \"bool\"",
-									"            }",
-									"        }",
-									"    }",
-									"}",
-									"",
-									"patientEhr = JSON.parse(responseBody)",
-									"",
-									"validationResult =  tv4.validate(patientEhr, patientEhrSchema);",
-									"console.log(validationResult);",
-									"if(!validationResult){",
-									"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
-									"}",
-									"",
-									"tests[\"Response is a valid PATIENT_EHR\"] = validationResult;",
-									"",
-									""
+							"name": "Create new composition",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"exec": [
+											"function guid() {",
+											"  function s4() {",
+											"    return Math.floor((1 + Math.random()) * 0x10000)",
+											"      .toString(16)",
+											"      .substring(1);",
+											"  }",
+											"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
+											"}",
+											"pm.globals.set(\"newGuid\", guid());",
+											" "
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"exec": [
+											"pm.test(\"Status code is 201 created\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"var schema = {",
+											"  \"type\": \"object\",",
+											"  \"required\": [\"_type\", \"archetype_node_id\", \"name\", \"uid\", \"archetype_details\",\"language\",\"territory\"],",
+											"  \"properties\": {",
+											"    \"_type\": {",
+											"      \"type\": \"string\"",
+											"    },",
+											"    \"archetype_node_id\": {",
+											"      \"type\": \"string\"",
+											"    },",
+											"    \"name\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"value\"],",
+											"      \"properties\": {",
+											"        \"value\": {",
+											"          \"type\": \"string\"",
+											"        }",
+											"      }",
+											"    },",
+											"    \"uid\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"_type\", \"value\"],",
+											"      \"properties\": {",
+											"        \"_type\": {",
+											"          \"type\": \"string\"",
+											"        },",
+											"        \"value\": {",
+											"          \"type\": \"string\"",
+											"        }",
+											"      }",
+											"    },",
+											"    \"archetype_details\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"archetype_id\", \"template_id\", \"rm_version\"],",
+											"      \"properties\": {",
+											"        \"archetype_id\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [],",
+											"          \"properties\": {",
+											"            \"value\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        },",
+											"        \"template_id\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [\"value\"],",
+											"          \"properties\": {",
+											"            \"value\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        },",
+											"        \"rm_version\": {",
+											"          \"type\": \"string\"",
+											"        }",
+											"      }",
+											"    },",
+											"    \"language\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"terminology_id\", \"code_string\"],",
+											"      \"properties\": {",
+											"        \"terminology_id\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [\"value\"],",
+											"          \"properties\": {",
+											"            \"value\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        },",
+											"        \"code_string\": {",
+											"          \"type\": \"string\"",
+											"        }",
+											"      }",
+											"    },",
+											"    \"territory\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"terminology_id\", \"code_string\"],",
+											"      \"properties\": {",
+											"        \"terminology_id\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [\"value\"],",
+											"          \"properties\": {",
+											"            \"value\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        },",
+											"        \"code_string\": {",
+											"          \"type\": \"string\"",
+											"        }",
+											"      }",
+											"    },",
+											"    \"category\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"value\",\"defining_code\",],",
+											"      \"properties\": {",
+											"        \"value\": {",
+											"          \"type\": \"string\"",
+											"        },",
+											"        \"defining_code\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [\"terminology_id\", \"code_string\"],",
+											"          \"properties\": {",
+											"            \"terminology_id\": {",
+											"              \"type\": \"object\",",
+											"              \"required\": [\"value\"],",
+											"              \"properties\": {",
+											"                \"value\": {",
+											"                  \"type\": \"string\"",
+											"                }",
+											"              }",
+											"            },",
+											"            \"code_string\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        }",
+											"      }",
+											"    },",
+											"    \"composer\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"_type\",\"external_ref\",\"name\"],",
+											"      \"properties\": {",
+											"        \"_type\": {",
+											"          \"type\": \"string\"",
+											"        },",
+											"        \"external_ref\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [\"namespace\", \"type\"],",
+											"          \"properties\": {",
+											"            \"id\": {",
+											"              \"type\": \"object\",",
+											"              \"required\": [\"_type\", \"value\"],",
+											"              \"properties\": {",
+											"                \"_type\": {",
+											"                  \"type\": \"string\"",
+											"                },",
+											"                \"value\": {",
+											"                  \"type\": \"string\"",
+											"                }",
+											"              }",
+											"            },",
+											"            \"namespace\": {",
+											"              \"type\": \"string\"",
+											"            },",
+											"            \"type\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        },",
+											"        \"name\": {",
+											"          \"type\": \"string\"",
+											"        }",
+											"      }",
+											"    },",
+											"    \"context\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [],",
+											"      \"properties\": {",
+											"        \"start_time\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [],",
+											"          \"properties\": {",
+											"            \"value\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        },",
+											"        \"setting\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [],",
+											"          \"properties\": {",
+											"            \"value\": {",
+											"              \"type\": \"string\"",
+											"            },",
+											"            \"defining_code\": {",
+											"              \"type\": \"object\",",
+											"              \"required\": [],",
+											"              \"properties\": {",
+											"                \"terminology_id\": {",
+											"                  \"type\": \"object\",",
+											"                  \"required\": [],",
+											"                  \"properties\": {",
+											"                    \"value\": {",
+											"                      \"type\": \"string\"",
+											"                    }",
+											"                  }",
+											"                },",
+											"                \"code_string\": {",
+											"                  \"type\": \"string\"",
+											"                }",
+											"              }",
+											"            }",
+											"          }",
+											"        }",
+											"      }",
+											"    },",
+											"    \"content\": {",
+											"      \"type\": \"array\",",
+											"      \"items\": {",
+											"        \"type\": \"string\"",
+											"      }",
+											"    }",
+											"  }",
+											"};",
+											"",
+											"",
+											"composition = JSON.parse(responseBody)",
+											"",
+											"validationResult = tv4.validate(composition, schema);",
+											"console.log(validationResult);",
+											"if(!validationResult){",
+											"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
+											"}",
+											"",
+											"tests[\"Response is a valid COMPOSITION\"] = validationResult;",
+											"",
+											"pm.test(\"Response headers are present\", function () {",
+											"    pm.response.to.have.header(\"Location\");",
+											"    pm.response.to.have.header(\"ETag\");",
+											"    pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"",
+											"var compositionPath = postman.getResponseHeader(\"Location\");",
+											"pm.globals.set(\"compositionPath\", compositionPath);",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Prefer",
+										"value": "return=representation",
+										"type": "text"
+									},
+									{
+										"key": "openEHR-AUDIT_DETAILS.committer",
+										"value": "name=\"John Doe\"",
+										"type": "text"
+									},
+									{
+										"key": "openEHR-VERSION.lifecycle_state",
+										"value": "code_string=\"532\"",
+										"type": "text"
+									}
 								],
-								"type": "text/javascript"
-							}
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"_type\": \"COMPOSITION\",\r\n    \"archetype_node_id\": \"openEHR-EHR-COMPOSITION.encounter.v1\",\r\n    \"name\": {\r\n      \"value\": \"Vital Signs\"\r\n    },\r\n    \"uid\": {\r\n      \"_type\": \"OBJECT_VERSION_ID\",\r\n      \"value\": \"{{newGuid}}::example.domain.com::1\"\r\n    },\r\n    \"archetype_details\": {\r\n      \"archetype_id\": {\r\n        \"value\": \"openEHR-EHR-COMPOSITION.encounter.v2\"\r\n      },\r\n      \"template_id\": {\r\n        \"value\": \"Example.v1::c7ec861c-c413-39ff-9965-a198ebf44747\"\r\n      },\r\n      \"rm_version\": \"1.0.2\"\r\n    },\r\n    \"language\": {\r\n      \"terminology_id\": {\r\n        \"value\": \"ISO_639-1\"\r\n      },\r\n      \"code_string\": \"en\"\r\n    },\r\n    \"territory\": {\r\n      \"terminology_id\": {\r\n        \"value\": \"ISO_3166-1\"\r\n      },\r\n      \"code_string\": \"NL\"\r\n    },\r\n    \"category\": {\r\n      \"value\": \"event\",\r\n      \"defining_code\": {\r\n        \"terminology_id\": {\r\n          \"value\": \"openehr\"\r\n        },\r\n        \"code_string\": \"433\"\r\n      }\r\n    },\r\n    \"composer\": {\r\n      \"_type\":  \"PARTY_IDENTIFIED\",\r\n      \"external_ref\": {\r\n        \"id\": {\r\n          \"_type\": \"GENERIC_ID\",\r\n          \"value\": \"16b74749-e6aa-4945-b760-b42bdc07098a\"\r\n        },\r\n        \"namespace\": \"example.domain.com\",\r\n        \"type\": \"PERSON\"\r\n      },\r\n      \"name\": \"A name\"\r\n    },\r\n    \"context\": {\r\n      \"start_time\": {\r\n        \"value\": \"2014-11-18T09:50:35.000+01:00\"\r\n      },\r\n      \"setting\": {\r\n        \"value\": \"other care\",\r\n        \"defining_code\": {\r\n          \"terminology_id\": {\r\n            \"value\": \"openehr\"\r\n          },\r\n          \"code_string\": \"238\"\r\n        }\r\n      }\r\n    },\r\n    \"content\": []\r\n  }\r\n"
+								},
+								"url": {
+									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}/composition",
+									"protocol": "{{Protocol}}",
+									"host": [
+										"{{ServerHostname}}"
+									],
+									"port": "{{ServerPort}}",
+									"path": [
+										"{{BasePath}}",
+										"ehr",
+										"{{EhrId}}",
+										"composition"
+									]
+								}
+							},
+							"response": []
 						},
 						{
-							"listen": "prerequest",
-							"script": {
-								"id": "92eeb239-b4f4-40da-96c7-97bb90137bac",
-								"exec": [
-									""
+							"name": "Get composition",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "302c6309-ca1e-4188-8073-9392b4325a8e",
+										"exec": [
+											"pm.test(\"Status code is 200 created\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"var schema = {",
+											"  \"type\": \"object\",",
+											"  \"required\": [\"_type\", \"archetype_node_id\", \"name\", \"uid\", \"archetype_details\",\"language\",\"territory\"],",
+											"  \"properties\": {",
+											"    \"_type\": {",
+											"      \"type\": \"string\"",
+											"    },",
+											"    \"archetype_node_id\": {",
+											"      \"type\": \"string\"",
+											"    },",
+											"    \"name\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"value\"],",
+											"      \"properties\": {",
+											"        \"value\": {",
+											"          \"type\": \"string\"",
+											"        }",
+											"      }",
+											"    },",
+											"    \"uid\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"_type\", \"value\"],",
+											"      \"properties\": {",
+											"        \"_type\": {",
+											"          \"type\": \"string\"",
+											"        },",
+											"        \"value\": {",
+											"          \"type\": \"string\"",
+											"        }",
+											"      }",
+											"    },",
+											"    \"archetype_details\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"archetype_id\", \"template_id\", \"rm_version\"],",
+											"      \"properties\": {",
+											"        \"archetype_id\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [],",
+											"          \"properties\": {",
+											"            \"value\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        },",
+											"        \"template_id\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [\"value\"],",
+											"          \"properties\": {",
+											"            \"value\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        },",
+											"        \"rm_version\": {",
+											"          \"type\": \"string\"",
+											"        }",
+											"      }",
+											"    },",
+											"    \"language\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"terminology_id\", \"code_string\"],",
+											"      \"properties\": {",
+											"        \"terminology_id\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [\"value\"],",
+											"          \"properties\": {",
+											"            \"value\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        },",
+											"        \"code_string\": {",
+											"          \"type\": \"string\"",
+											"        }",
+											"      }",
+											"    },",
+											"    \"territory\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"terminology_id\", \"code_string\"],",
+											"      \"properties\": {",
+											"        \"terminology_id\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [\"value\"],",
+											"          \"properties\": {",
+											"            \"value\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        },",
+											"        \"code_string\": {",
+											"          \"type\": \"string\"",
+											"        }",
+											"      }",
+											"    },",
+											"    \"category\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"value\",\"defining_code\",],",
+											"      \"properties\": {",
+											"        \"value\": {",
+											"          \"type\": \"string\"",
+											"        },",
+											"        \"defining_code\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [\"terminology_id\", \"code_string\"],",
+											"          \"properties\": {",
+											"            \"terminology_id\": {",
+											"              \"type\": \"object\",",
+											"              \"required\": [\"value\"],",
+											"              \"properties\": {",
+											"                \"value\": {",
+											"                  \"type\": \"string\"",
+											"                }",
+											"              }",
+											"            },",
+											"            \"code_string\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        }",
+											"      }",
+											"    },",
+											"    \"composer\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"_type\",\"external_ref\",\"name\"],",
+											"      \"properties\": {",
+											"        \"_type\": {",
+											"          \"type\": \"string\"",
+											"        },",
+											"        \"external_ref\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [\"namespace\", \"type\"],",
+											"          \"properties\": {",
+											"            \"id\": {",
+											"              \"type\": \"object\",",
+											"              \"required\": [\"_type\", \"value\"],",
+											"              \"properties\": {",
+											"                \"_type\": {",
+											"                  \"type\": \"string\"",
+											"                },",
+											"                \"value\": {",
+											"                  \"type\": \"string\"",
+											"                }",
+											"              }",
+											"            },",
+											"            \"namespace\": {",
+											"              \"type\": \"string\"",
+											"            },",
+											"            \"type\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        },",
+											"        \"name\": {",
+											"          \"type\": \"string\"",
+											"        }",
+											"      }",
+											"    },",
+											"    \"context\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [],",
+											"      \"properties\": {",
+											"        \"start_time\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [],",
+											"          \"properties\": {",
+											"            \"value\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        },",
+											"        \"setting\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [],",
+											"          \"properties\": {",
+											"            \"value\": {",
+											"              \"type\": \"string\"",
+											"            },",
+											"            \"defining_code\": {",
+											"              \"type\": \"object\",",
+											"              \"required\": [],",
+											"              \"properties\": {",
+											"                \"terminology_id\": {",
+											"                  \"type\": \"object\",",
+											"                  \"required\": [],",
+											"                  \"properties\": {",
+											"                    \"value\": {",
+											"                      \"type\": \"string\"",
+											"                    }",
+											"                  }",
+											"                },",
+											"                \"code_string\": {",
+											"                  \"type\": \"string\"",
+											"                }",
+											"              }",
+											"            }",
+											"          }",
+											"        }",
+											"      }",
+											"    },",
+											"    \"content\": {",
+											"      \"type\": \"array\",",
+											"      \"items\": {",
+											"        \"type\": \"string\"",
+											"      }",
+											"    }",
+											"  }",
+											"};",
+											"",
+											"",
+											"composition = JSON.parse(responseBody)",
+											"",
+											"validationResult = tv4.validate(composition, schema);",
+											"console.log(validationResult);",
+											"if(!validationResult){",
+											"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
+											"}",
+											"",
+											"tests[\"Response is a valid COMPOSITION\"] = validationResult;"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}{{compositionPath}}",
+									"protocol": "{{Protocol}}",
+									"host": [
+										"{{ServerHostname}}"
+									],
+									"port": "{{ServerPort}}{{compositionPath}}"
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create new composition with nonexisting EHR ID",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"exec": [
+											"function guid() {",
+											"  function s4() {",
+											"    return Math.floor((1 + Math.random()) * 0x10000)",
+											"      .toString(16)",
+											"      .substring(1);",
+											"  }",
+											"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
+											"}",
+											"pm.globals.set(\"newGuid\", guid());",
+											" "
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"exec": [
+											"pm.test(\"Status code is 404 not found\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Prefer",
+										"type": "text",
+										"value": "return=representation"
+									},
+									{
+										"key": "openEHR-AUDIT_DETAILS.committer",
+										"type": "text",
+										"value": "name=\"John Doe\""
+									},
+									{
+										"key": "openEHR-VERSION.lifecycle_state",
+										"type": "text",
+										"value": "code_string=\"532\""
+									}
 								],
-								"type": "text/javascript"
-							}
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"_type\": \"COMPOSITION\",\r\n    \"archetype_node_id\": \"openEHR-EHR-COMPOSITION.encounter.v1\",\r\n    \"name\": {\r\n      \"value\": \"Vital Signs\"\r\n    },\r\n    \"uid\": {\r\n      \"_type\": \"OBJECT_VERSION_ID\",\r\n      \"value\": \"{{newGuid}}::example.domain.com::1\"\r\n    },\r\n    \"archetype_details\": {\r\n      \"archetype_id\": {\r\n        \"value\": \"openEHR-EHR-COMPOSITION.encounter.v2\"\r\n      },\r\n      \"template_id\": {\r\n        \"value\": \"Example.v1::c7ec861c-c413-39ff-9965-a198ebf44747\"\r\n      },\r\n      \"rm_version\": \"1.0.2\"\r\n    },\r\n    \"language\": {\r\n      \"terminology_id\": {\r\n        \"value\": \"ISO_639-1\"\r\n      },\r\n      \"code_string\": \"en\"\r\n    },\r\n    \"territory\": {\r\n      \"terminology_id\": {\r\n        \"value\": \"ISO_3166-1\"\r\n      },\r\n      \"code_string\": \"NL\"\r\n    },\r\n    \"category\": {\r\n      \"value\": \"event\",\r\n      \"defining_code\": {\r\n        \"terminology_id\": {\r\n          \"value\": \"openehr\"\r\n        },\r\n        \"code_string\": \"433\"\r\n      }\r\n    },\r\n    \"composer\": {\r\n      \"_type\":  \"PARTY_IDENTIFIED\",\r\n      \"external_ref\": {\r\n        \"id\": {\r\n          \"_type\": \"GENERIC_ID\",\r\n          \"value\": \"16b74749-e6aa-4945-b760-b42bdc07098a\"\r\n        },\r\n        \"namespace\": \"example.domain.com\",\r\n        \"type\": \"PERSON\"\r\n      },\r\n      \"name\": \"A name\"\r\n    },\r\n    \"context\": {\r\n      \"start_time\": {\r\n        \"value\": \"2014-11-18T09:50:35.000+01:00\"\r\n      },\r\n      \"setting\": {\r\n        \"value\": \"other care\",\r\n        \"defining_code\": {\r\n          \"terminology_id\": {\r\n            \"value\": \"openehr\"\r\n          },\r\n          \"code_string\": \"238\"\r\n        }\r\n      }\r\n    },\r\n    \"content\": []\r\n  }\r\n"
+								},
+								"url": {
+									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{newGuid}}/composition",
+									"protocol": "{{Protocol}}",
+									"host": [
+										"{{ServerHostname}}"
+									],
+									"port": "{{ServerPort}}",
+									"path": [
+										"{{BasePath}}",
+										"ehr",
+										"{{newGuid}}",
+										"composition"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create new composition with invalid EHR ID",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"exec": [
+											"function guid() {",
+											"  function s4() {",
+											"    return Math.floor((1 + Math.random()) * 0x10000)",
+											"      .toString(16)",
+											"      .substring(1);",
+											"  }",
+											"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
+											"}",
+											"pm.globals.set(\"newGuid\", guid());",
+											" "
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"exec": [
+											"pm.test(\"Status code is 400 bad request\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											"",
+											"const responseSchema = {",
+											"    \"type\" : \"object\",",
+											"    \"properties\" : {",
+											"        \"message\" : {\"type\":\"string\"},",
+											"    },",
+											"    required: [\"message\"]",
+											"};",
+											"",
+											"var response = JSON.parse(responseBody);",
+											"",
+											"var validationResult = tv4.validate(response, responseSchema);",
+											"console.log(validationResult);",
+											"if(!validationResult){",
+											"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
+											"}",
+											"",
+											"tests[\"Response contains an error message\"] = validationResult;"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Prefer",
+										"type": "text",
+										"value": "return=representation"
+									},
+									{
+										"key": "openEHR-AUDIT_DETAILS.committer",
+										"type": "text",
+										"value": "name=\"John Doe\""
+									},
+									{
+										"key": "openEHR-VERSION.lifecycle_state",
+										"type": "text",
+										"value": "code_string=\"532\""
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"_type\": \"COMPOSITION\",\r\n    \"archetype_node_id\": \"openEHR-EHR-COMPOSITION.encounter.v1\",\r\n    \"name\": {\r\n      \"value\": \"Vital Signs\"\r\n    },\r\n    \"uid\": {\r\n      \"_type\": \"OBJECT_VERSION_ID\",\r\n      \"value\": \"{{newGuid}}::example.domain.com::1\"\r\n    },\r\n    \"archetype_details\": {\r\n      \"archetype_id\": {\r\n        \"value\": \"openEHR-EHR-COMPOSITION.encounter.v2\"\r\n      },\r\n      \"template_id\": {\r\n        \"value\": \"Example.v1::c7ec861c-c413-39ff-9965-a198ebf44747\"\r\n      },\r\n      \"rm_version\": \"1.0.2\"\r\n    },\r\n    \"language\": {\r\n      \"terminology_id\": {\r\n        \"value\": \"ISO_639-1\"\r\n      },\r\n      \"code_string\": \"en\"\r\n    },\r\n    \"territory\": {\r\n      \"terminology_id\": {\r\n        \"value\": \"ISO_3166-1\"\r\n      },\r\n      \"code_string\": \"NL\"\r\n    },\r\n    \"category\": {\r\n      \"value\": \"event\",\r\n      \"defining_code\": {\r\n        \"terminology_id\": {\r\n          \"value\": \"openehr\"\r\n        },\r\n        \"code_string\": \"433\"\r\n      }\r\n    },\r\n    \"composer\": {\r\n      \"_type\":  \"PARTY_IDENTIFIED\",\r\n      \"external_ref\": {\r\n        \"id\": {\r\n          \"_type\": \"GENERIC_ID\",\r\n          \"value\": \"16b74749-e6aa-4945-b760-b42bdc07098a\"\r\n        },\r\n        \"namespace\": \"example.domain.com\",\r\n        \"type\": \"PERSON\"\r\n      },\r\n      \"name\": \"A name\"\r\n    },\r\n    \"context\": {\r\n      \"start_time\": {\r\n        \"value\": \"2014-11-18T09:50:35.000+01:00\"\r\n      },\r\n      \"setting\": {\r\n        \"value\": \"other care\",\r\n        \"defining_code\": {\r\n          \"terminology_id\": {\r\n            \"value\": \"openehr\"\r\n          },\r\n          \"code_string\": \"238\"\r\n        }\r\n      }\r\n    },\r\n    \"content\": []\r\n  }\r\n"
+								},
+								"url": {
+									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/this-is-an-invalid-ehrid/composition",
+									"protocol": "{{Protocol}}",
+									"host": [
+										"{{ServerHostname}}"
+									],
+									"port": "{{ServerPort}}",
+									"path": [
+										"{{BasePath}}",
+										"ehr",
+										"this-is-an-invalid-ehrid",
+										"composition"
+									]
+								}
+							},
+							"response": []
 						}
 					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}",
-							"protocol": "{{Protocol}}",
-							"host": [
-								"{{ServerHostname}}"
-							],
-							"port": "{{ServerPort}}",
-							"path": [
-								"{{BasePath}}",
-								"ehr",
-								"{{EhrId}}"
-							]
-						}
-					},
-					"response": []
+					"_postman_isSubFolder": true
 				},
 				{
-					"name": "Get nonexisting EHR",
-					"event": [
+					"name": "Contribution",
+					"item": [
 						{
-							"listen": "test",
-							"script": {
-								"id": "0cb7deb6-40ac-494a-9d16-649fdb7fffda",
-								"exec": [
-									"pm.test(\"Status code is 404 not found\", function () {",
-									"    pm.response.to.have.status(404);",
-									"});"
+							"name": "Create new contribution",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"exec": [
+											"function guid() {",
+											"  function s4() {",
+											"    return Math.floor((1 + Math.random()) * 0x10000)",
+											"      .toString(16)",
+											"      .substring(1);",
+											"  }",
+											"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
+											"}",
+											"pm.globals.set(\"newGuid\", guid());"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"exec": [
+											"pm.test(\"Status code is 201 created\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"var schema = {",
+											"  \"type\": \"object\",",
+											"  \"required\": [\"_type\", \"uid\", \"versions\", \"audit\"],",
+											"  \"properties\": {",
+											"    \"_type\": {",
+											"      \"type\": \"string\"",
+											"    },",
+											"    \"uid\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"value\"],",
+											"      \"properties\": {",
+											"        \"value\": {",
+											"          \"type\": \"string\"",
+											"        }",
+											"      }",
+											"    },",
+											"    \"versions\": {",
+											"      \"type\": \"array\",",
+											"      \"items\": {",
+											"        \"type\": \"object\",",
+											"        \"required\": [\"_type\",\"id\", \"namespace\",\"type\"],",
+											"        \"properties\": {",
+											"          \"_type\": {",
+											"            \"type\": \"string\"",
+											"          },",
+											"          \"id\": {",
+											"            \"type\": \"object\",",
+											"            \"required\": [\"_type\",\"value\"],",
+											"            \"properties\": {",
+											"              \"_type\": {",
+											"                \"type\": \"string\"",
+											"              },",
+											"              \"value\": {",
+											"                \"type\": \"string\"",
+											"              }",
+											"            }",
+											"          },",
+											"          \"namespace\": {",
+											"            \"type\": \"string\"",
+											"          },",
+											"          \"type\": {",
+											"            \"type\": \"string\"",
+											"          }",
+											"        }",
+											"      }",
+											"    },",
+											"    \"audit\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"system_id\",\"committer\", \"time_committed\",\"change_type\",\"description\" ],",
+											"      \"properties\": {",
+											"        \"system_id\": {",
+											"          \"type\": \"string\"",
+											"        },",
+											"        \"committer\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [\"_type\",\"name\"],",
+											"          \"properties\": {",
+											"            \"_type\": {",
+											"              \"type\": \"string\"",
+											"            },",
+											"            \"name\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        },",
+											"        \"time_committed\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [\"value\"],",
+											"          \"properties\": {",
+											"            \"value\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        },",
+											"        \"change_type\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [\"value\",\"defining_code\"],",
+											"          \"properties\": {",
+											"            \"value\": {",
+											"              \"type\": \"string\"",
+											"            },",
+											"            \"defining_code\": {",
+											"              \"type\": \"object\",",
+											"              \"required\": [\"terminology_id\",\"code_string\"],",
+											"              \"properties\": {",
+											"                \"terminology_id\": {",
+											"                  \"type\": \"object\",",
+											"                  \"required\": [\"value\"],",
+											"                  \"properties\": {",
+											"                    \"value\": {",
+											"                      \"type\": \"string\"",
+											"                    }",
+											"                  }",
+											"                },",
+											"                \"code_string\": {",
+											"                  \"type\": \"string\"",
+											"                }",
+											"              }",
+											"            }",
+											"          }",
+											"        },",
+											"        \"description\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [\"value\"],",
+											"          \"properties\": {",
+											"            \"value\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        }",
+											"      }",
+											"    }",
+											"  }",
+											"}; ",
+											"contribution = JSON.parse(responseBody)",
+											"validationResult = tv4.validate(contribution, schema);",
+											"console.log(validationResult);",
+											"if(!validationResult){",
+											"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
+											"}",
+											"tests[\"Response is a valid CONTRIBUTION\"] = validationResult;",
+											"",
+											"pm.test(\"Response headers are present\", function () {",
+											"    pm.response.to.have.header(\"Location\");",
+											"    pm.response.to.have.header(\"ETag\");",
+											"    pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"",
+											"var contributionPath = postman.getResponseHeader(\"Location\");",
+											"pm.globals.set(\"contributionPath\", contributionPath);",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Prefer",
+										"type": "text",
+										"value": "return=representation"
+									},
+									{
+										"key": "openEHR-AUDIT_DETAILS.committer",
+										"type": "text",
+										"value": "name=\"John Doe\""
+									},
+									{
+										"key": "openEHR-VERSION.lifecycle_state",
+										"type": "text",
+										"value": "code_string=\"532\""
+									}
 								],
-								"type": "text/javascript"
-							}
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"_type\": \"CONTRIBUTION\",\r\n  \"versions\": [\r\n    {\r\n      \"namespace\": null,\r\n      \"type\": \"COMPOSITION\",\r\n      \"data\": {\r\n        \"_type\": \"COMPOSITION\",\r\n        \"archetype_node_id\": \"openEHR-EHR-COMPOSITION.encounter.v1\",\r\n        \"name\": {\r\n          \"value\": \"Vital Signs\"\r\n        },\r\n        \"uid\": {\r\n          \"_type\": \"OBJECT_VERSION_ID\",\r\n          \"value\": \"{{newGuid}}::example.domain.com::1\"\r\n        },\r\n        \"archetype_details\": {\r\n          \"archetype_id\": {\r\n            \"value\": \"openEHR-EHR-COMPOSITION.encounter.v1\"\r\n          },\r\n          \"template_id\": {\r\n            \"value\": \"Example.v1::c7ec861c-c413-39ff-9965-a198ebf44747\"\r\n          },\r\n          \"rm_version\": \"1.0.2\"\r\n        },\r\n        \"language\": {\r\n          \"terminology_id\": {\r\n            \"value\": \"ISO_639-1\"\r\n          },\r\n          \"code_string\": \"en\"\r\n        },\r\n        \"territory\": {\r\n          \"terminology_id\": {\r\n            \"value\": \"ISO_3166-1\"\r\n          },\r\n          \"code_string\": \"NL\"\r\n        },\r\n        \"category\": {\r\n          \"value\": \"event\",\r\n          \"defining_code\": {\r\n            \"terminology_id\": {\r\n              \"value\": \"openehr\"\r\n            },\r\n            \"code_string\": \"433\"\r\n          }\r\n        },\r\n        \"composer\": {\r\n          \"_type\": \"PARTY_IDENTIFIED\",\r\n          \"external_ref\": {\r\n            \"id\": {\r\n              \"_type\": \"GENERIC_ID\",\r\n              \"value\": \"16b74749-e6aa-4945-b760-b42bdc07098a\"\r\n            },\r\n            \"namespace\": \"example.domain.com\",\r\n            \"type\": \"PERSON\"\r\n          },\r\n          \"name\": \"A name\"\r\n        },\r\n        \"context\": {\r\n          \"start_time\": {\r\n            \"value\": \"2014-11-18T09:50:35+01:00\"\r\n          },\r\n          \"setting\": {\r\n            \"value\": \"other care\",\r\n            \"defining_code\": {\r\n              \"terminology_id\": {\r\n                \"value\": \"openehr\"\r\n              },\r\n              \"code_string\": \"238\"\r\n            }\r\n          }\r\n        },\r\n        \"content\": []\r\n      }\r\n    }\r\n  ],\r\n  \"audit\": {\r\n    \"_type\": \"AUDIT_DETAILS\",\r\n    \"system_id\": \"test-system-id\",\r\n    \"time_committed\": {\r\n      \"value\": \"2018-08-15T10:37:15+02:00\"\r\n    },\r\n    \"committer\": {\r\n      \"_type\": \"PARTY_IDENTIFIED\",\r\n      \"name\": \"<optional identifier of the committer>\",\r\n      \"external_ref\": {\r\n        \"id\": {\r\n          \"_type\": \"GENERIC_ID\",\r\n          \"value\": \"<OBJECT_ID>\",\r\n          \"scheme\": \"scheme\"\r\n        },\r\n        \"namespace\": \"demographic\",\r\n        \"type\": \"PERSON\"\r\n      }\r\n    },\r\n    \"change_type\": {\r\n      \"value\": \"creation\",\r\n      \"defining_code\": {\r\n        \"terminology_id\": {\r\n          \"value\": \"openehr\"\r\n        },\r\n        \"code_string\": \"249\"\r\n      }\r\n    },\r\n    \"description\": {\r\n      \"value\": \"comment\"\r\n    }\r\n  }\r\n}"
+								},
+								"url": {
+									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}/contribution",
+									"protocol": "{{Protocol}}",
+									"host": [
+										"{{ServerHostname}}"
+									],
+									"port": "{{ServerPort}}",
+									"path": [
+										"{{BasePath}}",
+										"ehr",
+										"{{EhrId}}",
+										"contribution"
+									]
+								}
+							},
+							"response": []
 						},
 						{
-							"listen": "prerequest",
-							"script": {
-								"id": "92eeb239-b4f4-40da-96c7-97bb90137bac",
-								"exec": [
-									"function guid() {",
-									"  function s4() {",
-									"    return Math.floor((1 + Math.random()) * 0x10000)",
-									"      .toString(16)",
-									"      .substring(1);",
-									"  }",
-									"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
-									"}",
-									"pm.globals.set(\"NonExistingEhrId\", guid());",
-									" "
-								],
-								"type": "text/javascript"
-							}
+							"name": "Get contribution",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "302c6309-ca1e-4188-8073-9392b4325a8e",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"var schema = {",
+											"  \"type\": \"object\",",
+											"  \"required\": [\"_type\", \"uid\", \"versions\", \"audit\"],",
+											"  \"properties\": {",
+											"    \"_type\": {",
+											"      \"type\": \"string\"",
+											"    },",
+											"    \"uid\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"value\"],",
+											"      \"properties\": {",
+											"        \"value\": {",
+											"          \"type\": \"string\"",
+											"        }",
+											"      }",
+											"    },",
+											"    \"versions\": {",
+											"      \"type\": \"array\",",
+											"      \"items\": {",
+											"        \"type\": \"object\",",
+											"        \"required\": [\"_type\",\"id\", \"namespace\",\"type\"],",
+											"        \"properties\": {",
+											"          \"_type\": {",
+											"            \"type\": \"string\"",
+											"          },",
+											"          \"id\": {",
+											"            \"type\": \"object\",",
+											"            \"required\": [\"_type\",\"value\"],",
+											"            \"properties\": {",
+											"              \"_type\": {",
+											"                \"type\": \"string\"",
+											"              },",
+											"              \"value\": {",
+											"                \"type\": \"string\"",
+											"              }",
+											"            }",
+											"          },",
+											"          \"namespace\": {",
+											"            \"type\": \"string\"",
+											"          },",
+											"          \"type\": {",
+											"            \"type\": \"string\"",
+											"          }",
+											"        }",
+											"      }",
+											"    },",
+											"    \"audit\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"system_id\",\"committer\", \"time_committed\",\"change_type\",\"description\" ],",
+											"      \"properties\": {",
+											"        \"system_id\": {",
+											"          \"type\": \"string\"",
+											"        },",
+											"        \"committer\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [\"_type\",\"name\"],",
+											"          \"properties\": {",
+											"            \"_type\": {",
+											"              \"type\": \"string\"",
+											"            },",
+											"            \"name\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        },",
+											"        \"time_committed\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [\"value\"],",
+											"          \"properties\": {",
+											"            \"value\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        },",
+											"        \"change_type\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [\"value\",\"defining_code\"],",
+											"          \"properties\": {",
+											"            \"value\": {",
+											"              \"type\": \"string\"",
+											"            },",
+											"            \"defining_code\": {",
+											"              \"type\": \"object\",",
+											"              \"required\": [\"terminology_id\",\"code_string\"],",
+											"              \"properties\": {",
+											"                \"terminology_id\": {",
+											"                  \"type\": \"object\",",
+											"                  \"required\": [\"value\"],",
+											"                  \"properties\": {",
+											"                    \"value\": {",
+											"                      \"type\": \"string\"",
+											"                    }",
+											"                  }",
+											"                },",
+											"                \"code_string\": {",
+											"                  \"type\": \"string\"",
+											"                }",
+											"              }",
+											"            }",
+											"          }",
+											"        },",
+											"        \"description\": {",
+											"          \"type\": \"object\",",
+											"          \"required\": [\"value\"],",
+											"          \"properties\": {",
+											"            \"value\": {",
+											"              \"type\": \"string\"",
+											"            }",
+											"          }",
+											"        }",
+											"      }",
+											"    }",
+											"  }",
+											"}; ",
+											"contribution = JSON.parse(responseBody)",
+											"validationResult = tv4.validate(contribution, schema);",
+											"console.log(validationResult);",
+											"if(!validationResult){",
+											"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
+											"}",
+											"tests[\"Response is a valid CONTRIBUTION\"] = validationResult;",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}{{contributionPath}}",
+									"protocol": "{{Protocol}}",
+									"host": [
+										"{{ServerHostname}}"
+									],
+									"port": "{{ServerPort}}{{contributionPath}}"
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get nonexisting contribution",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "302c6309-ca1e-4188-8073-9392b4325a8e",
+										"exec": [
+											"pm.test(\"Status code is 404 not found\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}/contribution/this-one-does-not-exist",
+									"protocol": "{{Protocol}}",
+									"host": [
+										"{{ServerHostname}}"
+									],
+									"port": "{{ServerPort}}",
+									"path": [
+										"{{BasePath}}",
+										"ehr",
+										"{{EhrId}}",
+										"contribution",
+										"this-one-does-not-exist"
+									]
+								}
+							},
+							"response": []
 						}
 					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{NonExistingEhrId}}",
-							"protocol": "{{Protocol}}",
-							"host": [
-								"{{ServerHostname}}"
-							],
-							"port": "{{ServerPort}}",
-							"path": [
-								"{{BasePath}}",
-								"ehr",
-								"{{NonExistingEhrId}}"
-							]
-						}
-					},
-					"response": []
+					"_postman_isSubFolder": true
 				},
 				{
-					"name": "Create new composition",
-					"event": [
+					"name": "Folder",
+					"item": [
 						{
-							"listen": "prerequest",
-							"script": {
-								"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
-								"exec": [
-									"function guid() {",
-									"  function s4() {",
-									"    return Math.floor((1 + Math.random()) * 0x10000)",
-									"      .toString(16)",
-									"      .substring(1);",
-									"  }",
-									"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
-									"}",
-									"pm.globals.set(\"newGuid\", guid());",
-									" "
+							"name": "Create new empty Folder",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"exec": [
+											"function guid() {",
+											"  function s4() {",
+											"    return Math.floor((1 + Math.random()) * 0x10000)",
+											"      .toString(16)",
+											"      .substring(1);",
+											"  }",
+											"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
+											"}",
+											"pm.globals.set(\"newGuid\", guid());"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"exec": [
+											"pm.test(\"Status code is 201 created\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"var schema = {",
+											"  \"type\": \"object\",",
+											"  \"required\": [\"uid\", \"_type\"],",
+											"  \"properties\": {",
+											"    \"_type\": {",
+											"      \"type\": \"string\"",
+											"    },",
+											"    \"uid\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"_type\",\"value\"],",
+											"      \"properties\": {",
+											"        \"_type\": {",
+											"          \"type\": \"string\"",
+											"        },",
+											"        \"value\": {",
+											"          \"type\": \"string\"",
+											"        }",
+											"      }",
+											"    }",
+											"  }",
+											"};",
+											"",
+											"folder = JSON.parse(responseBody)",
+											"validationResult = tv4.validate(folder, schema);",
+											"console.log(validationResult);",
+											"if(!validationResult){",
+											"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
+											"}",
+											"tests[\"Response is a valid FOLDER\"] = validationResult;",
+											"",
+											"pm.test(\"Response headers are present\", function () {",
+											"    pm.response.to.have.header(\"Location\");",
+											"    pm.response.to.have.header(\"ETag\");",
+											"    pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"",
+											"var folderPath = postman.getResponseHeader(\"Location\");",
+											"pm.globals.set(\"folderPath\", folderPath);",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Prefer",
+										"type": "text",
+										"value": "return=representation"
+									},
+									{
+										"key": "openEHR-AUDIT_DETAILS.committer",
+										"type": "text",
+										"value": "name=\"John Doe\""
+									},
+									{
+										"key": "openEHR-VERSION.lifecycle_state",
+										"type": "text",
+										"value": "code_string=\"532\""
+									}
 								],
-								"type": "text/javascript"
-							}
+								"body": {
+									"mode": "raw",
+									"raw": "\r\n{\r\n  \"_type\": \"FOLDER\",\r\n  \"items\": [],\r\n  \"folders\": []\r\n}"
+								},
+								"url": {
+									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}/directory",
+									"protocol": "{{Protocol}}",
+									"host": [
+										"{{ServerHostname}}"
+									],
+									"port": "{{ServerPort}}",
+									"path": [
+										"{{BasePath}}",
+										"ehr",
+										"{{EhrId}}",
+										"directory"
+									]
+								}
+							},
+							"response": []
 						},
 						{
-							"listen": "test",
-							"script": {
-								"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
-								"exec": [
-									"pm.test(\"Status code is 201 created\", function () {",
-									"    pm.response.to.have.status(201);",
-									"});",
-									"",
-									"var schema = {",
-									"  \"type\": \"object\",",
-									"  \"required\": [\"_type\", \"archetype_node_id\", \"name\", \"uid\", \"archetype_details\",\"language\",\"territory\"],",
-									"  \"properties\": {",
-									"    \"_type\": {",
-									"      \"type\": \"string\"",
-									"    },",
-									"    \"archetype_node_id\": {",
-									"      \"type\": \"string\"",
-									"    },",
-									"    \"name\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"value\"],",
-									"      \"properties\": {",
-									"        \"value\": {",
-									"          \"type\": \"string\"",
-									"        }",
-									"      }",
-									"    },",
-									"    \"uid\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"_type\", \"value\"],",
-									"      \"properties\": {",
-									"        \"_type\": {",
-									"          \"type\": \"string\"",
-									"        },",
-									"        \"value\": {",
-									"          \"type\": \"string\"",
-									"        }",
-									"      }",
-									"    },",
-									"    \"archetype_details\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"archetype_id\", \"template_id\", \"rm_version\"],",
-									"      \"properties\": {",
-									"        \"archetype_id\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [],",
-									"          \"properties\": {",
-									"            \"value\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        },",
-									"        \"template_id\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [\"value\"],",
-									"          \"properties\": {",
-									"            \"value\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        },",
-									"        \"rm_version\": {",
-									"          \"type\": \"string\"",
-									"        }",
-									"      }",
-									"    },",
-									"    \"language\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"terminology_id\", \"code_string\"],",
-									"      \"properties\": {",
-									"        \"terminology_id\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [\"value\"],",
-									"          \"properties\": {",
-									"            \"value\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        },",
-									"        \"code_string\": {",
-									"          \"type\": \"string\"",
-									"        }",
-									"      }",
-									"    },",
-									"    \"territory\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"terminology_id\", \"code_string\"],",
-									"      \"properties\": {",
-									"        \"terminology_id\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [\"value\"],",
-									"          \"properties\": {",
-									"            \"value\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        },",
-									"        \"code_string\": {",
-									"          \"type\": \"string\"",
-									"        }",
-									"      }",
-									"    },",
-									"    \"category\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"value\",\"defining_code\",],",
-									"      \"properties\": {",
-									"        \"value\": {",
-									"          \"type\": \"string\"",
-									"        },",
-									"        \"defining_code\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [\"terminology_id\", \"code_string\"],",
-									"          \"properties\": {",
-									"            \"terminology_id\": {",
-									"              \"type\": \"object\",",
-									"              \"required\": [\"value\"],",
-									"              \"properties\": {",
-									"                \"value\": {",
-									"                  \"type\": \"string\"",
-									"                }",
-									"              }",
-									"            },",
-									"            \"code_string\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        }",
-									"      }",
-									"    },",
-									"    \"composer\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"_type\",\"external_ref\",\"name\"],",
-									"      \"properties\": {",
-									"        \"_type\": {",
-									"          \"type\": \"string\"",
-									"        },",
-									"        \"external_ref\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [\"namespace\", \"type\"],",
-									"          \"properties\": {",
-									"            \"id\": {",
-									"              \"type\": \"object\",",
-									"              \"required\": [\"_type\", \"value\"],",
-									"              \"properties\": {",
-									"                \"_type\": {",
-									"                  \"type\": \"string\"",
-									"                },",
-									"                \"value\": {",
-									"                  \"type\": \"string\"",
-									"                }",
-									"              }",
-									"            },",
-									"            \"namespace\": {",
-									"              \"type\": \"string\"",
-									"            },",
-									"            \"type\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        },",
-									"        \"name\": {",
-									"          \"type\": \"string\"",
-									"        }",
-									"      }",
-									"    },",
-									"    \"context\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [],",
-									"      \"properties\": {",
-									"        \"start_time\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [],",
-									"          \"properties\": {",
-									"            \"value\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        },",
-									"        \"setting\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [],",
-									"          \"properties\": {",
-									"            \"value\": {",
-									"              \"type\": \"string\"",
-									"            },",
-									"            \"defining_code\": {",
-									"              \"type\": \"object\",",
-									"              \"required\": [],",
-									"              \"properties\": {",
-									"                \"terminology_id\": {",
-									"                  \"type\": \"object\",",
-									"                  \"required\": [],",
-									"                  \"properties\": {",
-									"                    \"value\": {",
-									"                      \"type\": \"string\"",
-									"                    }",
-									"                  }",
-									"                },",
-									"                \"code_string\": {",
-									"                  \"type\": \"string\"",
-									"                }",
-									"              }",
-									"            }",
-									"          }",
-									"        }",
-									"      }",
-									"    },",
-									"    \"content\": {",
-									"      \"type\": \"array\",",
-									"      \"items\": {",
-									"        \"type\": \"string\"",
-									"      }",
-									"    }",
-									"  }",
-									"};",
-									"",
-									"",
-									"composition = JSON.parse(responseBody)",
-									"",
-									"validationResult = tv4.validate(composition, schema);",
-									"console.log(validationResult);",
-									"if(!validationResult){",
-									"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
-									"}",
-									"",
-									"tests[\"Response is a valid COMPOSITION\"] = validationResult;",
-									"",
-									"pm.test(\"Response headers are present\", function () {",
-									"    pm.response.to.have.header(\"Location\");",
-									"    pm.response.to.have.header(\"ETag\");",
-									"    pm.response.to.have.header(\"Content-Type\");",
-									"});",
-									"",
-									"var compositionPath = postman.getResponseHeader(\"Location\");",
-									"pm.globals.set(\"compositionPath\", compositionPath);",
-									"",
-									""
+							"name": "Get empty folder",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"var schema = {",
+											"  \"type\": \"object\",",
+											"  \"required\": [\"uid\", \"_type\"],",
+											"  \"properties\": {",
+											"    \"_type\": {",
+											"      \"type\": \"string\"",
+											"    },",
+											"    \"uid\": {",
+											"      \"type\": \"object\",",
+											"      \"required\": [\"_type\",\"value\"],",
+											"      \"properties\": {",
+											"        \"_type\": {",
+											"          \"type\": \"string\"",
+											"        },",
+											"        \"value\": {",
+											"          \"type\": \"string\"",
+											"        }",
+											"      }",
+											"    }",
+											"  }",
+											"};",
+											"",
+											"folder = JSON.parse(responseBody)",
+											"validationResult = tv4.validate(folder, schema);",
+											"console.log(validationResult);",
+											"if(!validationResult){",
+											"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
+											"}",
+											"tests[\"Response is a valid FOLDER\"] = validationResult;",
+											"",
+											"pm.test(\"Response headers are present\", function () {",
+											"    pm.response.to.have.header(\"Location\");",
+											"    pm.response.to.have.header(\"ETag\");",
+											"    pm.response.to.have.header(\"Content-Type\");",
+											"});",
+											"",
+											"var folderPath = postman.getResponseHeader(\"Location\");",
+											"pm.globals.set(\"folderPath\", folderPath);",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Prefer",
+										"type": "text",
+										"value": "return=representation"
+									},
+									{
+										"key": "openEHR-AUDIT_DETAILS.committer",
+										"type": "text",
+										"value": "name=\"John Doe\""
+									},
+									{
+										"key": "openEHR-VERSION.lifecycle_state",
+										"type": "text",
+										"value": "code_string=\"532\""
+									}
 								],
-								"type": "text/javascript"
-							}
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}{{folderPath}}",
+									"protocol": "{{Protocol}}",
+									"host": [
+										"{{ServerHostname}}"
+									],
+									"port": "{{ServerPort}}{{folderPath}}"
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get folder at nonexisting path",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"exec": [
+											"pm.test(\"Status code is 204 no content\", function () {",
+											"    pm.response.to.have.status(204);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Prefer",
+										"type": "text",
+										"value": "return=representation"
+									},
+									{
+										"key": "openEHR-AUDIT_DETAILS.committer",
+										"type": "text",
+										"value": "name=\"John Doe\""
+									},
+									{
+										"key": "openEHR-VERSION.lifecycle_state",
+										"type": "text",
+										"value": "code_string=\"532\""
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}{{folderPath}}?path=nonexistingpath/",
+									"protocol": "{{Protocol}}",
+									"host": [
+										"{{ServerHostname}}"
+									],
+									"port": "{{ServerPort}}{{folderPath}}",
+									"query": [
+										{
+											"key": "path",
+											"value": "nonexistingpath/"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get folder for nonexisting EHR ID",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"exec": [
+											"pm.test(\"Status code is 404 not found\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Prefer",
+										"type": "text",
+										"value": "return=representation"
+									},
+									{
+										"key": "openEHR-AUDIT_DETAILS.committer",
+										"type": "text",
+										"value": "name=\"John Doe\""
+									},
+									{
+										"key": "openEHR-VERSION.lifecycle_state",
+										"type": "text",
+										"value": "code_string=\"532\""
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/ehr/{{newGuid}}/directory/{{folderUid}}",
+									"protocol": "{{Protocol}}",
+									"host": [
+										"{{ServerHostname}}"
+									],
+									"port": "{{ServerPort}}",
+									"path": [
+										"ehr",
+										"{{newGuid}}",
+										"directory",
+										"{{folderUid}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create invalid folder",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"exec": [
+											"pm.test(\"Status code is 400 bad request\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Prefer",
+										"type": "text",
+										"value": "return=representation"
+									},
+									{
+										"key": "openEHR-AUDIT_DETAILS.committer",
+										"type": "text",
+										"value": "name=\"John Doe\""
+									},
+									{
+										"key": "openEHR-VERSION.lifecycle_state",
+										"type": "text",
+										"value": "code_string=\"532\""
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "\r\n{\r\n}"
+								},
+								"url": {
+									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}/directory",
+									"protocol": "{{Protocol}}",
+									"host": [
+										"{{ServerHostname}}"
+									],
+									"port": "{{ServerPort}}",
+									"path": [
+										"{{BasePath}}",
+										"ehr",
+										"{{EhrId}}",
+										"directory"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create new empty folder to nonexisting EHR",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"exec": [
+											"function guid() {",
+											"  function s4() {",
+											"    return Math.floor((1 + Math.random()) * 0x10000)",
+											"      .toString(16)",
+											"      .substring(1);",
+											"  }",
+											"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
+											"}",
+											"pm.globals.set(\"newGuid\", guid());"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"exec": [
+											"pm.test(\"Status code is 404 not found\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Prefer",
+										"type": "text",
+										"value": "return=representation"
+									},
+									{
+										"key": "openEHR-AUDIT_DETAILS.committer",
+										"type": "text",
+										"value": "name=\"John Doe\""
+									},
+									{
+										"key": "openEHR-VERSION.lifecycle_state",
+										"type": "text",
+										"value": "code_string=\"532\""
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "\r\n{\r\n  \"_type\": \"FOLDER\",\r\n  \"items\": [],\r\n  \"folders\": []\r\n}"
+								},
+								"url": {
+									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{newGuid}}/directory",
+									"protocol": "{{Protocol}}",
+									"host": [
+										"{{ServerHostname}}"
+									],
+									"port": "{{ServerPort}}",
+									"path": [
+										"{{BasePath}}",
+										"ehr",
+										"{{newGuid}}",
+										"directory"
+									]
+								}
+							},
+							"response": []
 						}
 					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							},
-							{
-								"key": "Prefer",
-								"value": "return=representation",
-								"type": "text"
-							},
-							{
-								"key": "openEHR-AUDIT_DETAILS.committer",
-								"value": "name=\"John Doe\"",
-								"type": "text"
-							},
-							{
-								"key": "openEHR-VERSION.lifecycle_state",
-								"value": "code_string=\"532\"",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"_type\": \"COMPOSITION\",\r\n    \"archetype_node_id\": \"openEHR-EHR-COMPOSITION.encounter.v1\",\r\n    \"name\": {\r\n      \"value\": \"Vital Signs\"\r\n    },\r\n    \"uid\": {\r\n      \"_type\": \"OBJECT_VERSION_ID\",\r\n      \"value\": \"{{newGuid}}::example.domain.com::1\"\r\n    },\r\n    \"archetype_details\": {\r\n      \"archetype_id\": {\r\n        \"value\": \"openEHR-EHR-COMPOSITION.encounter.v2\"\r\n      },\r\n      \"template_id\": {\r\n        \"value\": \"Example.v1::c7ec861c-c413-39ff-9965-a198ebf44747\"\r\n      },\r\n      \"rm_version\": \"1.0.2\"\r\n    },\r\n    \"language\": {\r\n      \"terminology_id\": {\r\n        \"value\": \"ISO_639-1\"\r\n      },\r\n      \"code_string\": \"en\"\r\n    },\r\n    \"territory\": {\r\n      \"terminology_id\": {\r\n        \"value\": \"ISO_3166-1\"\r\n      },\r\n      \"code_string\": \"NL\"\r\n    },\r\n    \"category\": {\r\n      \"value\": \"event\",\r\n      \"defining_code\": {\r\n        \"terminology_id\": {\r\n          \"value\": \"openehr\"\r\n        },\r\n        \"code_string\": \"433\"\r\n      }\r\n    },\r\n    \"composer\": {\r\n      \"_type\":  \"PARTY_IDENTIFIED\",\r\n      \"external_ref\": {\r\n        \"id\": {\r\n          \"_type\": \"GENERIC_ID\",\r\n          \"value\": \"16b74749-e6aa-4945-b760-b42bdc07098a\"\r\n        },\r\n        \"namespace\": \"example.domain.com\",\r\n        \"type\": \"PERSON\"\r\n      },\r\n      \"name\": \"A name\"\r\n    },\r\n    \"context\": {\r\n      \"start_time\": {\r\n        \"value\": \"2014-11-18T09:50:35.000+01:00\"\r\n      },\r\n      \"setting\": {\r\n        \"value\": \"other care\",\r\n        \"defining_code\": {\r\n          \"terminology_id\": {\r\n            \"value\": \"openehr\"\r\n          },\r\n          \"code_string\": \"238\"\r\n        }\r\n      }\r\n    },\r\n    \"content\": []\r\n  }\r\n"
-						},
-						"url": {
-							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}/composition",
-							"protocol": "{{Protocol}}",
-							"host": [
-								"{{ServerHostname}}"
-							],
-							"port": "{{ServerPort}}",
-							"path": [
-								"{{BasePath}}",
-								"ehr",
-								"{{EhrId}}",
-								"composition"
-							]
-						}
-					},
-					"response": []
+					"_postman_isSubFolder": true
 				},
 				{
-					"name": "Get composition",
-					"event": [
+					"name": "Options",
+					"item": [
 						{
-							"listen": "test",
-							"script": {
-								"id": "302c6309-ca1e-4188-8073-9392b4325a8e",
-								"exec": [
-									"pm.test(\"Status code is 200 created\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"var schema = {",
-									"  \"type\": \"object\",",
-									"  \"required\": [\"_type\", \"archetype_node_id\", \"name\", \"uid\", \"archetype_details\",\"language\",\"territory\"],",
-									"  \"properties\": {",
-									"    \"_type\": {",
-									"      \"type\": \"string\"",
-									"    },",
-									"    \"archetype_node_id\": {",
-									"      \"type\": \"string\"",
-									"    },",
-									"    \"name\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"value\"],",
-									"      \"properties\": {",
-									"        \"value\": {",
-									"          \"type\": \"string\"",
-									"        }",
-									"      }",
-									"    },",
-									"    \"uid\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"_type\", \"value\"],",
-									"      \"properties\": {",
-									"        \"_type\": {",
-									"          \"type\": \"string\"",
-									"        },",
-									"        \"value\": {",
-									"          \"type\": \"string\"",
-									"        }",
-									"      }",
-									"    },",
-									"    \"archetype_details\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"archetype_id\", \"template_id\", \"rm_version\"],",
-									"      \"properties\": {",
-									"        \"archetype_id\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [],",
-									"          \"properties\": {",
-									"            \"value\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        },",
-									"        \"template_id\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [\"value\"],",
-									"          \"properties\": {",
-									"            \"value\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        },",
-									"        \"rm_version\": {",
-									"          \"type\": \"string\"",
-									"        }",
-									"      }",
-									"    },",
-									"    \"language\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"terminology_id\", \"code_string\"],",
-									"      \"properties\": {",
-									"        \"terminology_id\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [\"value\"],",
-									"          \"properties\": {",
-									"            \"value\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        },",
-									"        \"code_string\": {",
-									"          \"type\": \"string\"",
-									"        }",
-									"      }",
-									"    },",
-									"    \"territory\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"terminology_id\", \"code_string\"],",
-									"      \"properties\": {",
-									"        \"terminology_id\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [\"value\"],",
-									"          \"properties\": {",
-									"            \"value\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        },",
-									"        \"code_string\": {",
-									"          \"type\": \"string\"",
-									"        }",
-									"      }",
-									"    },",
-									"    \"category\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"value\",\"defining_code\",],",
-									"      \"properties\": {",
-									"        \"value\": {",
-									"          \"type\": \"string\"",
-									"        },",
-									"        \"defining_code\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [\"terminology_id\", \"code_string\"],",
-									"          \"properties\": {",
-									"            \"terminology_id\": {",
-									"              \"type\": \"object\",",
-									"              \"required\": [\"value\"],",
-									"              \"properties\": {",
-									"                \"value\": {",
-									"                  \"type\": \"string\"",
-									"                }",
-									"              }",
-									"            },",
-									"            \"code_string\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        }",
-									"      }",
-									"    },",
-									"    \"composer\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"_type\",\"external_ref\",\"name\"],",
-									"      \"properties\": {",
-									"        \"_type\": {",
-									"          \"type\": \"string\"",
-									"        },",
-									"        \"external_ref\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [\"namespace\", \"type\"],",
-									"          \"properties\": {",
-									"            \"id\": {",
-									"              \"type\": \"object\",",
-									"              \"required\": [\"_type\", \"value\"],",
-									"              \"properties\": {",
-									"                \"_type\": {",
-									"                  \"type\": \"string\"",
-									"                },",
-									"                \"value\": {",
-									"                  \"type\": \"string\"",
-									"                }",
-									"              }",
-									"            },",
-									"            \"namespace\": {",
-									"              \"type\": \"string\"",
-									"            },",
-									"            \"type\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        },",
-									"        \"name\": {",
-									"          \"type\": \"string\"",
-									"        }",
-									"      }",
-									"    },",
-									"    \"context\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [],",
-									"      \"properties\": {",
-									"        \"start_time\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [],",
-									"          \"properties\": {",
-									"            \"value\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        },",
-									"        \"setting\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [],",
-									"          \"properties\": {",
-									"            \"value\": {",
-									"              \"type\": \"string\"",
-									"            },",
-									"            \"defining_code\": {",
-									"              \"type\": \"object\",",
-									"              \"required\": [],",
-									"              \"properties\": {",
-									"                \"terminology_id\": {",
-									"                  \"type\": \"object\",",
-									"                  \"required\": [],",
-									"                  \"properties\": {",
-									"                    \"value\": {",
-									"                      \"type\": \"string\"",
-									"                    }",
-									"                  }",
-									"                },",
-									"                \"code_string\": {",
-									"                  \"type\": \"string\"",
-									"                }",
-									"              }",
-									"            }",
-									"          }",
-									"        }",
-									"      }",
-									"    },",
-									"    \"content\": {",
-									"      \"type\": \"array\",",
-									"      \"items\": {",
-									"        \"type\": \"string\"",
-									"      }",
-									"    }",
-									"  }",
-									"};",
-									"",
-									"",
-									"composition = JSON.parse(responseBody)",
-									"",
-									"validationResult = tv4.validate(composition, schema);",
-									"console.log(validationResult);",
-									"if(!validationResult){",
-									"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
-									"}",
-									"",
-									"tests[\"Response is a valid COMPOSITION\"] = validationResult;"
+							"name": "Get options",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"var schema ={",
+											"  \"type\": \"object\",",
+											"  \"required\": [\"solution\",\"solution_version\",\"vendor\",\"rest_api_specs_version\",\"conformance_profile\",\"endpoints\"],",
+											"  \"properties\": {",
+											"    \"solution\": {",
+											"      \"type\": \"string\"",
+											"    },",
+											"    \"solution_version\": {",
+											"      \"type\": \"string\"",
+											"    },",
+											"    \"vendor\": {",
+											"      \"type\": \"string\"",
+											"    },",
+											"    \"rest_api_specs_version\": {",
+											"      \"type\": \"string\"",
+											"    },",
+											"    \"conformance_profile\": {",
+											"      \"type\": \"string\"",
+											"    },",
+											"    \"endpoints\": {",
+											"      \"type\": \"array\",",
+											"      \"items\": {",
+											"        \"type\": \"string\"",
+											"      }",
+											"    }",
+											"  }",
+											"}",
+											"",
+											"options = JSON.parse(responseBody)",
+											"validationResult = tv4.validate(options, schema);",
+											"console.log(validationResult);",
+											"if(!validationResult){",
+											"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
+											"}",
+											"tests[\"Response is valid OPTIONS\"] = validationResult;",
+											"",
+											"pm.test(\"Response headers are present\", function () {",
+											"    pm.response.to.have.header(\"Allow\");",
+											"});",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "OPTIONS",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "Prefer",
+										"type": "text",
+										"value": "return=representation"
+									},
+									{
+										"key": "openEHR-AUDIT_DETAILS.committer",
+										"type": "text",
+										"value": "name=\"John Doe\""
+									},
+									{
+										"key": "openEHR-VERSION.lifecycle_state",
+										"type": "text",
+										"value": "code_string=\"532\""
+									}
 								],
-								"type": "text/javascript"
-							}
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}",
+									"protocol": "{{Protocol}}",
+									"host": [
+										"{{ServerHostname}}"
+									],
+									"port": "{{ServerPort}}",
+									"path": [
+										"{{BasePath}}"
+									]
+								}
+							},
+							"response": []
 						}
 					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}{{compositionPath}}",
-							"protocol": "{{Protocol}}",
-							"host": [
-								"{{ServerHostname}}"
-							],
-							"port": "{{ServerPort}}{{compositionPath}}"
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create new composition with nonexisting EHR ID",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
-								"exec": [
-									"function guid() {",
-									"  function s4() {",
-									"    return Math.floor((1 + Math.random()) * 0x10000)",
-									"      .toString(16)",
-									"      .substring(1);",
-									"  }",
-									"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
-									"}",
-									"pm.globals.set(\"newGuid\", guid());",
-									" "
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
-								"exec": [
-									"pm.test(\"Status code is 404 not found\", function () {",
-									"    pm.response.to.have.status(404);",
-									"});",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
-							},
-							{
-								"key": "Prefer",
-								"type": "text",
-								"value": "return=representation"
-							},
-							{
-								"key": "openEHR-AUDIT_DETAILS.committer",
-								"type": "text",
-								"value": "name=\"John Doe\""
-							},
-							{
-								"key": "openEHR-VERSION.lifecycle_state",
-								"type": "text",
-								"value": "code_string=\"532\""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"_type\": \"COMPOSITION\",\r\n    \"archetype_node_id\": \"openEHR-EHR-COMPOSITION.encounter.v1\",\r\n    \"name\": {\r\n      \"value\": \"Vital Signs\"\r\n    },\r\n    \"uid\": {\r\n      \"_type\": \"OBJECT_VERSION_ID\",\r\n      \"value\": \"{{newGuid}}::example.domain.com::1\"\r\n    },\r\n    \"archetype_details\": {\r\n      \"archetype_id\": {\r\n        \"value\": \"openEHR-EHR-COMPOSITION.encounter.v2\"\r\n      },\r\n      \"template_id\": {\r\n        \"value\": \"Example.v1::c7ec861c-c413-39ff-9965-a198ebf44747\"\r\n      },\r\n      \"rm_version\": \"1.0.2\"\r\n    },\r\n    \"language\": {\r\n      \"terminology_id\": {\r\n        \"value\": \"ISO_639-1\"\r\n      },\r\n      \"code_string\": \"en\"\r\n    },\r\n    \"territory\": {\r\n      \"terminology_id\": {\r\n        \"value\": \"ISO_3166-1\"\r\n      },\r\n      \"code_string\": \"NL\"\r\n    },\r\n    \"category\": {\r\n      \"value\": \"event\",\r\n      \"defining_code\": {\r\n        \"terminology_id\": {\r\n          \"value\": \"openehr\"\r\n        },\r\n        \"code_string\": \"433\"\r\n      }\r\n    },\r\n    \"composer\": {\r\n      \"_type\":  \"PARTY_IDENTIFIED\",\r\n      \"external_ref\": {\r\n        \"id\": {\r\n          \"_type\": \"GENERIC_ID\",\r\n          \"value\": \"16b74749-e6aa-4945-b760-b42bdc07098a\"\r\n        },\r\n        \"namespace\": \"example.domain.com\",\r\n        \"type\": \"PERSON\"\r\n      },\r\n      \"name\": \"A name\"\r\n    },\r\n    \"context\": {\r\n      \"start_time\": {\r\n        \"value\": \"2014-11-18T09:50:35.000+01:00\"\r\n      },\r\n      \"setting\": {\r\n        \"value\": \"other care\",\r\n        \"defining_code\": {\r\n          \"terminology_id\": {\r\n            \"value\": \"openehr\"\r\n          },\r\n          \"code_string\": \"238\"\r\n        }\r\n      }\r\n    },\r\n    \"content\": []\r\n  }\r\n"
-						},
-						"url": {
-							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{newGuid}}/composition",
-							"protocol": "{{Protocol}}",
-							"host": [
-								"{{ServerHostname}}"
-							],
-							"port": "{{ServerPort}}",
-							"path": [
-								"{{BasePath}}",
-								"ehr",
-								"{{newGuid}}",
-								"composition"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create new composition with invalid EHR ID",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
-								"exec": [
-									"function guid() {",
-									"  function s4() {",
-									"    return Math.floor((1 + Math.random()) * 0x10000)",
-									"      .toString(16)",
-									"      .substring(1);",
-									"  }",
-									"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
-									"}",
-									"pm.globals.set(\"newGuid\", guid());",
-									" "
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
-								"exec": [
-									"pm.test(\"Status code is 400 bad request\", function () {",
-									"    pm.response.to.have.status(400);",
-									"});",
-									"",
-									"const responseSchema = {",
-									"    \"type\" : \"object\",",
-									"    \"properties\" : {",
-									"        \"message\" : {\"type\":\"string\"},",
-									"    },",
-									"    required: [\"message\"]",
-									"};",
-									"",
-									"var response = JSON.parse(responseBody);",
-									"",
-									"var validationResult = tv4.validate(response, responseSchema);",
-									"console.log(validationResult);",
-									"if(!validationResult){",
-									"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
-									"}",
-									"",
-									"tests[\"Response contains an error message\"] = validationResult;"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
-							},
-							{
-								"key": "Prefer",
-								"type": "text",
-								"value": "return=representation"
-							},
-							{
-								"key": "openEHR-AUDIT_DETAILS.committer",
-								"type": "text",
-								"value": "name=\"John Doe\""
-							},
-							{
-								"key": "openEHR-VERSION.lifecycle_state",
-								"type": "text",
-								"value": "code_string=\"532\""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"_type\": \"COMPOSITION\",\r\n    \"archetype_node_id\": \"openEHR-EHR-COMPOSITION.encounter.v1\",\r\n    \"name\": {\r\n      \"value\": \"Vital Signs\"\r\n    },\r\n    \"uid\": {\r\n      \"_type\": \"OBJECT_VERSION_ID\",\r\n      \"value\": \"{{newGuid}}::example.domain.com::1\"\r\n    },\r\n    \"archetype_details\": {\r\n      \"archetype_id\": {\r\n        \"value\": \"openEHR-EHR-COMPOSITION.encounter.v2\"\r\n      },\r\n      \"template_id\": {\r\n        \"value\": \"Example.v1::c7ec861c-c413-39ff-9965-a198ebf44747\"\r\n      },\r\n      \"rm_version\": \"1.0.2\"\r\n    },\r\n    \"language\": {\r\n      \"terminology_id\": {\r\n        \"value\": \"ISO_639-1\"\r\n      },\r\n      \"code_string\": \"en\"\r\n    },\r\n    \"territory\": {\r\n      \"terminology_id\": {\r\n        \"value\": \"ISO_3166-1\"\r\n      },\r\n      \"code_string\": \"NL\"\r\n    },\r\n    \"category\": {\r\n      \"value\": \"event\",\r\n      \"defining_code\": {\r\n        \"terminology_id\": {\r\n          \"value\": \"openehr\"\r\n        },\r\n        \"code_string\": \"433\"\r\n      }\r\n    },\r\n    \"composer\": {\r\n      \"_type\":  \"PARTY_IDENTIFIED\",\r\n      \"external_ref\": {\r\n        \"id\": {\r\n          \"_type\": \"GENERIC_ID\",\r\n          \"value\": \"16b74749-e6aa-4945-b760-b42bdc07098a\"\r\n        },\r\n        \"namespace\": \"example.domain.com\",\r\n        \"type\": \"PERSON\"\r\n      },\r\n      \"name\": \"A name\"\r\n    },\r\n    \"context\": {\r\n      \"start_time\": {\r\n        \"value\": \"2014-11-18T09:50:35.000+01:00\"\r\n      },\r\n      \"setting\": {\r\n        \"value\": \"other care\",\r\n        \"defining_code\": {\r\n          \"terminology_id\": {\r\n            \"value\": \"openehr\"\r\n          },\r\n          \"code_string\": \"238\"\r\n        }\r\n      }\r\n    },\r\n    \"content\": []\r\n  }\r\n"
-						},
-						"url": {
-							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/this-is-an-invalid-ehrid/composition",
-							"protocol": "{{Protocol}}",
-							"host": [
-								"{{ServerHostname}}"
-							],
-							"port": "{{ServerPort}}",
-							"path": [
-								"{{BasePath}}",
-								"ehr",
-								"this-is-an-invalid-ehrid",
-								"composition"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create new contribution",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
-								"exec": [
-									"function guid() {",
-									"  function s4() {",
-									"    return Math.floor((1 + Math.random()) * 0x10000)",
-									"      .toString(16)",
-									"      .substring(1);",
-									"  }",
-									"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
-									"}",
-									"pm.globals.set(\"newGuid\", guid());"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
-								"exec": [
-									"pm.test(\"Status code is 201 created\", function () {",
-									"    pm.response.to.have.status(201);",
-									"});",
-									"",
-									"var schema = {",
-									"  \"type\": \"object\",",
-									"  \"required\": [\"_type\", \"uid\", \"versions\", \"audit\"],",
-									"  \"properties\": {",
-									"    \"_type\": {",
-									"      \"type\": \"string\"",
-									"    },",
-									"    \"uid\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"value\"],",
-									"      \"properties\": {",
-									"        \"value\": {",
-									"          \"type\": \"string\"",
-									"        }",
-									"      }",
-									"    },",
-									"    \"versions\": {",
-									"      \"type\": \"array\",",
-									"      \"items\": {",
-									"        \"type\": \"object\",",
-									"        \"required\": [\"_type\",\"id\", \"namespace\",\"type\"],",
-									"        \"properties\": {",
-									"          \"_type\": {",
-									"            \"type\": \"string\"",
-									"          },",
-									"          \"id\": {",
-									"            \"type\": \"object\",",
-									"            \"required\": [\"_type\",\"value\"],",
-									"            \"properties\": {",
-									"              \"_type\": {",
-									"                \"type\": \"string\"",
-									"              },",
-									"              \"value\": {",
-									"                \"type\": \"string\"",
-									"              }",
-									"            }",
-									"          },",
-									"          \"namespace\": {",
-									"            \"type\": \"string\"",
-									"          },",
-									"          \"type\": {",
-									"            \"type\": \"string\"",
-									"          }",
-									"        }",
-									"      }",
-									"    },",
-									"    \"audit\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"system_id\",\"committer\", \"time_committed\",\"change_type\",\"description\" ],",
-									"      \"properties\": {",
-									"        \"system_id\": {",
-									"          \"type\": \"string\"",
-									"        },",
-									"        \"committer\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [\"_type\",\"name\"],",
-									"          \"properties\": {",
-									"            \"_type\": {",
-									"              \"type\": \"string\"",
-									"            },",
-									"            \"name\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        },",
-									"        \"time_committed\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [\"value\"],",
-									"          \"properties\": {",
-									"            \"value\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        },",
-									"        \"change_type\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [\"value\",\"defining_code\"],",
-									"          \"properties\": {",
-									"            \"value\": {",
-									"              \"type\": \"string\"",
-									"            },",
-									"            \"defining_code\": {",
-									"              \"type\": \"object\",",
-									"              \"required\": [\"terminology_id\",\"code_string\"],",
-									"              \"properties\": {",
-									"                \"terminology_id\": {",
-									"                  \"type\": \"object\",",
-									"                  \"required\": [\"value\"],",
-									"                  \"properties\": {",
-									"                    \"value\": {",
-									"                      \"type\": \"string\"",
-									"                    }",
-									"                  }",
-									"                },",
-									"                \"code_string\": {",
-									"                  \"type\": \"string\"",
-									"                }",
-									"              }",
-									"            }",
-									"          }",
-									"        },",
-									"        \"description\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [\"value\"],",
-									"          \"properties\": {",
-									"            \"value\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        }",
-									"      }",
-									"    }",
-									"  }",
-									"}; ",
-									"contribution = JSON.parse(responseBody)",
-									"validationResult = tv4.validate(contribution, schema);",
-									"console.log(validationResult);",
-									"if(!validationResult){",
-									"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
-									"}",
-									"tests[\"Response is a valid CONTRIBUTION\"] = validationResult;",
-									"",
-									"pm.test(\"Response headers are present\", function () {",
-									"    pm.response.to.have.header(\"Location\");",
-									"    pm.response.to.have.header(\"ETag\");",
-									"    pm.response.to.have.header(\"Content-Type\");",
-									"});",
-									"",
-									"var contributionPath = postman.getResponseHeader(\"Location\");",
-									"pm.globals.set(\"contributionPath\", contributionPath);",
-									"",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
-							},
-							{
-								"key": "Prefer",
-								"type": "text",
-								"value": "return=representation"
-							},
-							{
-								"key": "openEHR-AUDIT_DETAILS.committer",
-								"type": "text",
-								"value": "name=\"John Doe\""
-							},
-							{
-								"key": "openEHR-VERSION.lifecycle_state",
-								"type": "text",
-								"value": "code_string=\"532\""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"_type\": \"CONTRIBUTION\",\r\n  \"versions\": [\r\n    {\r\n      \"namespace\": null,\r\n      \"type\": \"COMPOSITION\",\r\n      \"data\": {\r\n        \"_type\": \"COMPOSITION\",\r\n        \"archetype_node_id\": \"openEHR-EHR-COMPOSITION.encounter.v1\",\r\n        \"name\": {\r\n          \"value\": \"Vital Signs\"\r\n        },\r\n        \"uid\": {\r\n          \"_type\": \"OBJECT_VERSION_ID\",\r\n          \"value\": \"{{newGuid}}::example.domain.com::1\"\r\n        },\r\n        \"archetype_details\": {\r\n          \"archetype_id\": {\r\n            \"value\": \"openEHR-EHR-COMPOSITION.encounter.v1\"\r\n          },\r\n          \"template_id\": {\r\n            \"value\": \"Example.v1::c7ec861c-c413-39ff-9965-a198ebf44747\"\r\n          },\r\n          \"rm_version\": \"1.0.2\"\r\n        },\r\n        \"language\": {\r\n          \"terminology_id\": {\r\n            \"value\": \"ISO_639-1\"\r\n          },\r\n          \"code_string\": \"en\"\r\n        },\r\n        \"territory\": {\r\n          \"terminology_id\": {\r\n            \"value\": \"ISO_3166-1\"\r\n          },\r\n          \"code_string\": \"NL\"\r\n        },\r\n        \"category\": {\r\n          \"value\": \"event\",\r\n          \"defining_code\": {\r\n            \"terminology_id\": {\r\n              \"value\": \"openehr\"\r\n            },\r\n            \"code_string\": \"433\"\r\n          }\r\n        },\r\n        \"composer\": {\r\n          \"_type\": \"PARTY_IDENTIFIED\",\r\n          \"external_ref\": {\r\n            \"id\": {\r\n              \"_type\": \"GENERIC_ID\",\r\n              \"value\": \"16b74749-e6aa-4945-b760-b42bdc07098a\"\r\n            },\r\n            \"namespace\": \"example.domain.com\",\r\n            \"type\": \"PERSON\"\r\n          },\r\n          \"name\": \"A name\"\r\n        },\r\n        \"context\": {\r\n          \"start_time\": {\r\n            \"value\": \"2014-11-18T09:50:35+01:00\"\r\n          },\r\n          \"setting\": {\r\n            \"value\": \"other care\",\r\n            \"defining_code\": {\r\n              \"terminology_id\": {\r\n                \"value\": \"openehr\"\r\n              },\r\n              \"code_string\": \"238\"\r\n            }\r\n          }\r\n        },\r\n        \"content\": []\r\n      }\r\n    }\r\n  ],\r\n  \"audit\": {\r\n    \"_type\": \"AUDIT_DETAILS\",\r\n    \"system_id\": \"test-system-id\",\r\n    \"time_committed\": {\r\n      \"value\": \"2018-08-15T10:37:15+02:00\"\r\n    },\r\n    \"committer\": {\r\n      \"_type\": \"PARTY_IDENTIFIED\",\r\n      \"name\": \"<optional identifier of the committer>\",\r\n      \"external_ref\": {\r\n        \"id\": {\r\n          \"_type\": \"GENERIC_ID\",\r\n          \"value\": \"<OBJECT_ID>\",\r\n          \"scheme\": \"scheme\"\r\n        },\r\n        \"namespace\": \"demographic\",\r\n        \"type\": \"PERSON\"\r\n      }\r\n    },\r\n    \"change_type\": {\r\n      \"value\": \"creation\",\r\n      \"defining_code\": {\r\n        \"terminology_id\": {\r\n          \"value\": \"openehr\"\r\n        },\r\n        \"code_string\": \"249\"\r\n      }\r\n    },\r\n    \"description\": {\r\n      \"value\": \"comment\"\r\n    }\r\n  }\r\n}"
-						},
-						"url": {
-							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}/contribution",
-							"protocol": "{{Protocol}}",
-							"host": [
-								"{{ServerHostname}}"
-							],
-							"port": "{{ServerPort}}",
-							"path": [
-								"{{BasePath}}",
-								"ehr",
-								"{{EhrId}}",
-								"contribution"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get contribution",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "302c6309-ca1e-4188-8073-9392b4325a8e",
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"var schema = {",
-									"  \"type\": \"object\",",
-									"  \"required\": [\"_type\", \"uid\", \"versions\", \"audit\"],",
-									"  \"properties\": {",
-									"    \"_type\": {",
-									"      \"type\": \"string\"",
-									"    },",
-									"    \"uid\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"value\"],",
-									"      \"properties\": {",
-									"        \"value\": {",
-									"          \"type\": \"string\"",
-									"        }",
-									"      }",
-									"    },",
-									"    \"versions\": {",
-									"      \"type\": \"array\",",
-									"      \"items\": {",
-									"        \"type\": \"object\",",
-									"        \"required\": [\"_type\",\"id\", \"namespace\",\"type\"],",
-									"        \"properties\": {",
-									"          \"_type\": {",
-									"            \"type\": \"string\"",
-									"          },",
-									"          \"id\": {",
-									"            \"type\": \"object\",",
-									"            \"required\": [\"_type\",\"value\"],",
-									"            \"properties\": {",
-									"              \"_type\": {",
-									"                \"type\": \"string\"",
-									"              },",
-									"              \"value\": {",
-									"                \"type\": \"string\"",
-									"              }",
-									"            }",
-									"          },",
-									"          \"namespace\": {",
-									"            \"type\": \"string\"",
-									"          },",
-									"          \"type\": {",
-									"            \"type\": \"string\"",
-									"          }",
-									"        }",
-									"      }",
-									"    },",
-									"    \"audit\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"system_id\",\"committer\", \"time_committed\",\"change_type\",\"description\" ],",
-									"      \"properties\": {",
-									"        \"system_id\": {",
-									"          \"type\": \"string\"",
-									"        },",
-									"        \"committer\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [\"_type\",\"name\"],",
-									"          \"properties\": {",
-									"            \"_type\": {",
-									"              \"type\": \"string\"",
-									"            },",
-									"            \"name\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        },",
-									"        \"time_committed\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [\"value\"],",
-									"          \"properties\": {",
-									"            \"value\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        },",
-									"        \"change_type\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [\"value\",\"defining_code\"],",
-									"          \"properties\": {",
-									"            \"value\": {",
-									"              \"type\": \"string\"",
-									"            },",
-									"            \"defining_code\": {",
-									"              \"type\": \"object\",",
-									"              \"required\": [\"terminology_id\",\"code_string\"],",
-									"              \"properties\": {",
-									"                \"terminology_id\": {",
-									"                  \"type\": \"object\",",
-									"                  \"required\": [\"value\"],",
-									"                  \"properties\": {",
-									"                    \"value\": {",
-									"                      \"type\": \"string\"",
-									"                    }",
-									"                  }",
-									"                },",
-									"                \"code_string\": {",
-									"                  \"type\": \"string\"",
-									"                }",
-									"              }",
-									"            }",
-									"          }",
-									"        },",
-									"        \"description\": {",
-									"          \"type\": \"object\",",
-									"          \"required\": [\"value\"],",
-									"          \"properties\": {",
-									"            \"value\": {",
-									"              \"type\": \"string\"",
-									"            }",
-									"          }",
-									"        }",
-									"      }",
-									"    }",
-									"  }",
-									"}; ",
-									"contribution = JSON.parse(responseBody)",
-									"validationResult = tv4.validate(contribution, schema);",
-									"console.log(validationResult);",
-									"if(!validationResult){",
-									"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
-									"}",
-									"tests[\"Response is a valid CONTRIBUTION\"] = validationResult;",
-									"",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}{{contributionPath}}",
-							"protocol": "{{Protocol}}",
-							"host": [
-								"{{ServerHostname}}"
-							],
-							"port": "{{ServerPort}}{{contributionPath}}"
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get nonexisting contribution",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "302c6309-ca1e-4188-8073-9392b4325a8e",
-								"exec": [
-									"pm.test(\"Status code is 404 not found\", function () {",
-									"    pm.response.to.have.status(404);",
-									"});",
-									"",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}/contribution/this-one-does-not-exist",
-							"protocol": "{{Protocol}}",
-							"host": [
-								"{{ServerHostname}}"
-							],
-							"port": "{{ServerPort}}",
-							"path": [
-								"{{BasePath}}",
-								"ehr",
-								"{{EhrId}}",
-								"contribution",
-								"this-one-does-not-exist"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create new empty Folder",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
-								"exec": [
-									"function guid() {",
-									"  function s4() {",
-									"    return Math.floor((1 + Math.random()) * 0x10000)",
-									"      .toString(16)",
-									"      .substring(1);",
-									"  }",
-									"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
-									"}",
-									"pm.globals.set(\"newGuid\", guid());"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
-								"exec": [
-									"pm.test(\"Status code is 201 created\", function () {",
-									"    pm.response.to.have.status(201);",
-									"});",
-									"",
-									"var schema = {",
-									"  \"type\": \"object\",",
-									"  \"required\": [\"uid\", \"_type\"],",
-									"  \"properties\": {",
-									"    \"_type\": {",
-									"      \"type\": \"string\"",
-									"    },",
-									"    \"uid\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"_type\",\"value\"],",
-									"      \"properties\": {",
-									"        \"_type\": {",
-									"          \"type\": \"string\"",
-									"        },",
-									"        \"value\": {",
-									"          \"type\": \"string\"",
-									"        }",
-									"      }",
-									"    }",
-									"  }",
-									"};",
-									"",
-									"folder = JSON.parse(responseBody)",
-									"validationResult = tv4.validate(folder, schema);",
-									"console.log(validationResult);",
-									"if(!validationResult){",
-									"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
-									"}",
-									"tests[\"Response is a valid FOLDER\"] = validationResult;",
-									"",
-									"pm.test(\"Response headers are present\", function () {",
-									"    pm.response.to.have.header(\"Location\");",
-									"    pm.response.to.have.header(\"ETag\");",
-									"    pm.response.to.have.header(\"Content-Type\");",
-									"});",
-									"",
-									"var folderPath = postman.getResponseHeader(\"Location\");",
-									"pm.globals.set(\"folderPath\", folderPath);",
-									"",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
-							},
-							{
-								"key": "Prefer",
-								"type": "text",
-								"value": "return=representation"
-							},
-							{
-								"key": "openEHR-AUDIT_DETAILS.committer",
-								"type": "text",
-								"value": "name=\"John Doe\""
-							},
-							{
-								"key": "openEHR-VERSION.lifecycle_state",
-								"type": "text",
-								"value": "code_string=\"532\""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "\r\n{\r\n  \"_type\": \"FOLDER\",\r\n  \"items\": [],\r\n  \"folders\": []\r\n}"
-						},
-						"url": {
-							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}/directory",
-							"protocol": "{{Protocol}}",
-							"host": [
-								"{{ServerHostname}}"
-							],
-							"port": "{{ServerPort}}",
-							"path": [
-								"{{BasePath}}",
-								"ehr",
-								"{{EhrId}}",
-								"directory"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get empty folder",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"var schema = {",
-									"  \"type\": \"object\",",
-									"  \"required\": [\"uid\", \"_type\"],",
-									"  \"properties\": {",
-									"    \"_type\": {",
-									"      \"type\": \"string\"",
-									"    },",
-									"    \"uid\": {",
-									"      \"type\": \"object\",",
-									"      \"required\": [\"_type\",\"value\"],",
-									"      \"properties\": {",
-									"        \"_type\": {",
-									"          \"type\": \"string\"",
-									"        },",
-									"        \"value\": {",
-									"          \"type\": \"string\"",
-									"        }",
-									"      }",
-									"    }",
-									"  }",
-									"};",
-									"",
-									"folder = JSON.parse(responseBody)",
-									"validationResult = tv4.validate(folder, schema);",
-									"console.log(validationResult);",
-									"if(!validationResult){",
-									"    console.log(tv4.error.message +\" in \"+tv4.error.dataPath);",
-									"}",
-									"tests[\"Response is a valid FOLDER\"] = validationResult;",
-									"",
-									"pm.test(\"Response headers are present\", function () {",
-									"    pm.response.to.have.header(\"Location\");",
-									"    pm.response.to.have.header(\"ETag\");",
-									"    pm.response.to.have.header(\"Content-Type\");",
-									"});",
-									"",
-									"var folderPath = postman.getResponseHeader(\"Location\");",
-									"pm.globals.set(\"folderPath\", folderPath);",
-									"",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
-							},
-							{
-								"key": "Prefer",
-								"type": "text",
-								"value": "return=representation"
-							},
-							{
-								"key": "openEHR-AUDIT_DETAILS.committer",
-								"type": "text",
-								"value": "name=\"John Doe\""
-							},
-							{
-								"key": "openEHR-VERSION.lifecycle_state",
-								"type": "text",
-								"value": "code_string=\"532\""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}{{folderPath}}",
-							"protocol": "{{Protocol}}",
-							"host": [
-								"{{ServerHostname}}"
-							],
-							"port": "{{ServerPort}}{{folderPath}}"
-						}
-					},
-					"response": []
+					"_postman_isSubFolder": true
 				}
 			]
 		},
