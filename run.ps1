@@ -73,3 +73,5 @@ exec { &  Get-ChildItem -Path "src\*collection.json" -Recurse | Sort-Object Leng
     newman run $_.FullName  --global-var "Protocol=$serverProtocol" --global-var "ServerHostname=$serverHostname" --global-var "ServerPort=$serverPort" --global-var "BasePath=openehr" -k -n $iterations -r teamcity,cli
     }
 }
+
+Write-Output "##teamcity[message text='$serverHostname']"
