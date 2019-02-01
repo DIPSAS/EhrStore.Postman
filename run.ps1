@@ -50,8 +50,6 @@ if ($Help) {
 
 $ErrorActionPreference = 'Stop'
 
-
-
 function Exec([scriptblock]$cmd, [string]$errorMessage = "Error executing command: " + $cmd) {
     & $cmd
     if ($LastExitCode -ne 0) {
@@ -61,19 +59,14 @@ function Exec([scriptblock]$cmd, [string]$errorMessage = "Error executing comman
 
 exec { & npm install -g newman newman-reporter-teamcity }
 
-# $url = [System.Uri]$env:ehrstore_url
+$uri = [System.Uri]$Url
 
-if(-not $Url) {
-   $Url = "http://localhost:9000"
-}
+$serverPort = $uri.Port
+$serverHostname = $uri.Host 
+$serverProtocol = $uri.Scheme
 
-$serverPort = $Url.Port
-$serverHostname = $Url.Host 
-$serverProtocol = $Url.Scheme
-
-
-
-Write-Host "Running API test against $Url"
+$message = "Running API test against $serverProtocol" + "://$serverHostname" + ":$serverPort"
+Write-Host $message
 
 # Run newman tests for all json files named *collection.json in the src/ folder
 exec { &  Get-ChildItem -Path "src\*collection.json" -Recurse | Sort-Object Length -Descending | ForEach-Object {
