@@ -1,17 +1,26 @@
 # EhrStore API TESTS
-Create Postman test collections and place them in the `src/` directory. TeamCity
-will run any collection named `*collection.json`, even in subfolders in `src/`.
+[Postman](https://www.getpostman.com/) tests for the [DIPS](https://www.dips.no)
+EHR Store openEHR server implementation. In addition to our proprietary API, we 
+include tests for the 
+[open EHR REST API](https://github.com/openEHR/specifications-ITS-REST). Users
+can either run the tests through a command-line interface, or through Postman.
 
-You can use the global variables `Protocol`, `ServerHostname`, `ServerPort` and
-`BasePath` in your test collections. All of these are set in TeamCity to point
-to different EhrStore instances.
+![screenshot.png](screenshot.png)
 
-# git submodules
-You can add repositories as `git submodules` in the `src/` directory. To
-retrieve all of these when you clone the repo you must run 
+# Run Tests 
+## Powershell 
+
+Use the [run.ps1](run.ps1) script to run the tests: 
 
 ```
-git submodule update --init --recursive
+$ ./run.ps1 -Url "http://localhost:9000"
 ```
 
-in the root directory of this repository.
+Note that you'll need to install 
+[Node.js and npm](https://www.npmjs.com/get-npm) prior to running these tests.
+
+## Postman
+[Import](https://learning.getpostman.com/docs/postman/collection_runs/working_with_data_files/#importing-sample-collection-files)
+and
+[run](https://learning.getpostman.com/docs/postman/collection_runs/starting_a_collection_run/)
+the collections from the [src/](src/) directory. 

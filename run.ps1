@@ -18,7 +18,7 @@ Number of iterations to run
 Prints script synoposis, description, parameters and link
 
 .LINK
-http://vd-tfs03:8080/tfs/DefaultCollection/DIPS/_git/EhrStore.Postman
+http://www.github.com/DIPSAS/EhrStore.Postman
 
 .EXAMPLE
 ./run.ps1
