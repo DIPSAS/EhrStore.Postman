@@ -73,7 +73,7 @@
 									},
 									{
 										"key": "Prefer",
-										"value": "representation",
+										"value": "return=representation",
 										"type": "text"
 									}
 								],
