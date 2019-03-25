@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "4971ac83-2bff-4708-a411-45d3e76b6e64",
+		"_postman_id": "5749af7b-c957-4e2c-ab3e-b0852ef10a7d",
 		"name": "openEHR-conformance",
 		"description": "openEHR REST API conformance testing",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -79,7 +79,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"_type\": \"EHR_STATUS\",\n  \"subject\": {\n    \"external_ref\": {\n      \"id\": {\n        \"_type\": \"GENERIC_ID\",\n        \"value\": \"{{NewEhrStatusId}}\"\n      },\n      \"namespace\": \"ehr_craft\",\n      \"type\": \"PERSON\"\n    }\n  },\n  \"is_queryable\": false,\n  \"is_modifiable\": false\n}"
+									"raw": "{\n  \"_type\": \"EHR_STATUS\",\n  \"subject\": {\n    \"external_ref\": {\n      \"id\": {\n        \"_type\": \"GENERIC_ID\",\n        \"value\": \"{{NewEhrStatusId}}\",\n        \"scheme\" : \"id_scheme\"\n      },\n      \"namespace\": \"ehr_craft\",\n      \"type\": \"PERSON\"\n    }\n  },\n  \"is_queryable\": false,\n  \"is_modifiable\": false\n}"
 								},
 								"url": {
 									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr",
