@@ -1858,7 +1858,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "\r\n{\r\n}"
+									"raw": ""
 								},
 								"url": {
 									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}/directory",
