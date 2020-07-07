@@ -13,8 +13,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "marked": "^0.6.3",
-    "newman": "^4.6.1",
-    "newman-reporter-teamcity": "^0.1.12"
+    "marked": "^1.1.0",
+    "newman": "^5.1.0",
+    "newman-reporter-teamcity": "^0.1.15"
   }
 }
