@@ -2158,7 +2158,7 @@
 									"                \"_generator\" : {\"type\":\"string\"},",
 									"                \"_executed_aql\" : {\"type\":\"string\"}",
 									"            },",
-									"            \"required\" : [\"_type\", \"_schema_version\", \"_created\", \"_generator\"]",
+									"            \"required\" : []",
 									"        },",
 									"        \"required\" : [\"_type\",\"totalResults\",\"columns\",\"rows\",\"meta\"]",
 									"    } ",
@@ -3935,17 +3935,17 @@
 	],
 	"variable": [
 		{
-			"id": "6477a597-66b3-4228-9cf2-3ad62246be98",
+			"id": "bbbef06c-9651-4d51-bfa7-70c842c4f809",
 			"key": "ServerHostname",
 			"value": "localhost"
 		},
 		{
-			"id": "91a56aac-5743-4926-b825-c2c6e74151f4",
+			"id": "bd4e69a8-b082-4c13-9024-ab66293832b4",
 			"key": "Protocol",
 			"value": "http"
 		},
 		{
-			"id": "acc21256-216e-4423-9a7e-f87f7aa27ad2",
+			"id": "c25e4fc4-2c7b-4f16-85d4-2806367a8fa5",
 			"key": "ServerPort",
 			"value": "9000"
 		}
