@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "5749af7b-c957-4e2c-ab3e-b0852ef10a7d",
+		"_postman_id": "a4158f43-1b0e-4569-8849-ad37e4ba7610",
 		"name": "openEHR-conformance",
 		"description": "openEHR REST API conformance testing",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -18,7 +18,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "f18fc891-b9b4-44c4-bb23-91a92e49cb44",
+										"id": "dd243d55-23de-44d8-89e9-e5eae86cccf4",
 										"exec": [
 											"function guid() {",
 											"  function s4() {",
@@ -37,7 +37,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "468b3123-8ded-430d-aa0f-2c1e3450b3d6",
+										"id": "2e14fd78-b11f-44ca-9102-c1eef28fd754",
 										"exec": [
 											"pm.test(\"Status code is 201\", function () {",
 											"    pm.response.to.have.status(201);",
@@ -102,7 +102,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "0cb7deb6-40ac-494a-9d16-649fdb7fffda",
+										"id": "c5199ed2-f1e7-4415-80ee-0865a6b63c98",
 										"exec": [
 											"pm.test(\"Status code is 200\", function () {",
 											"    pm.response.to.have.status(200);",
@@ -182,7 +182,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "92eeb239-b4f4-40da-96c7-97bb90137bac",
+										"id": "bb1341a3-1319-4e85-8d7e-282e907f0dda",
 										"exec": [
 											""
 										],
@@ -193,10 +193,6 @@
 							"request": {
 								"method": "GET",
 								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}",
 									"protocol": "{{Protocol}}",
@@ -219,7 +215,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "0cb7deb6-40ac-494a-9d16-649fdb7fffda",
+										"id": "27036c54-2e09-4209-8e02-f68f8e3b256b",
 										"exec": [
 											"pm.test(\"Status code is 404 not found\", function () {",
 											"    pm.response.to.have.status(404);",
@@ -231,7 +227,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "92eeb239-b4f4-40da-96c7-97bb90137bac",
+										"id": "6e12bf9b-a446-45a8-beb0-3e26304dce2a",
 										"exec": [
 											"function guid() {",
 											"  function s4() {",
@@ -251,10 +247,6 @@
 							"request": {
 								"method": "GET",
 								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{NonExistingEhrId}}",
 									"protocol": "{{Protocol}}",
@@ -270,8 +262,71 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "Create EHR (Empty EHR_STATUS)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "6e49bc54-7764-48b3-b8ac-1a5315d1497f",
+										"exec": [
+											"pm.test(\"Status code is 201\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"// Get an ehr ID we can work with in later tests",
+											"var loc = postman.getResponseHeader(\"Location\");",
+											"var ehr = loc.substring(loc.lastIndexOf(\"/\")+1);",
+											"pm.globals.set(\"EhrId\", ehr);",
+											"",
+											"pm.test(\"Location is present\", function () {",
+											"    pm.response.to.have.header(\"Location\");",
+											"});",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "openEHR-AUDIT_DETAILS.committer",
+										"value": "name=\"Postman\"",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr?=",
+									"protocol": "{{Protocol}}",
+									"host": [
+										"{{ServerHostname}}"
+									],
+									"port": "{{ServerPort}}",
+									"path": [
+										"{{BasePath}}",
+										"ehr"
+									],
+									"query": [
+										{
+											"key": "",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
 						}
 					],
+					"protocolProfileBehavior": {},
 					"_postman_isSubFolder": true
 				},
 				{
@@ -283,7 +338,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"id": "c2e02e8f-426e-48d2-93ff-8e6134e2f445",
 										"exec": [
 											"function guid() {",
 											"  function s4() {",
@@ -302,7 +357,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"id": "ea2471ea-a368-4421-ac2e-d4fd6131ef62",
 										"exec": [
 											"pm.test(\"Status code is 201 created\", function () {",
 											"    pm.response.to.have.status(201);",
@@ -594,7 +649,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "302c6309-ca1e-4188-8073-9392b4325a8e",
+										"id": "33a4ec98-0174-4dd3-8533-8b6cee1d2869",
 										"exec": [
 											"pm.test(\"Status code is 200 created\", function () {",
 											"    pm.response.to.have.status(200);",
@@ -826,10 +881,6 @@
 							"request": {
 								"method": "GET",
 								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}{{compositionPath}}",
 									"protocol": "{{Protocol}}",
@@ -847,7 +898,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"id": "fcbd42db-c788-468f-9456-e2671bc0d216",
 										"exec": [
 											"function guid() {",
 											"  function s4() {",
@@ -866,7 +917,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"id": "75638b02-1416-4b33-b47c-186b4813565d",
 										"exec": [
 											"pm.test(\"Status code is 404 not found\", function () {",
 											"    pm.response.to.have.status(404);",
@@ -929,7 +980,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"id": "bb4dbcfe-5466-4db2-86f5-ded13db64fae",
 										"exec": [
 											"function guid() {",
 											"  function s4() {",
@@ -948,7 +999,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"id": "118744ea-7743-43cf-98b7-4fd2b6e7d7ce",
 										"exec": [
 											"pm.test(\"Status code is 400 bad request\", function () {",
 											"    pm.response.to.have.status(400);",
@@ -1005,6 +1056,7 @@
 							"response": []
 						}
 					],
+					"protocolProfileBehavior": {},
 					"_postman_isSubFolder": true
 				},
 				{
@@ -1016,7 +1068,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"id": "46742073-c5fb-464d-b622-39c675abbf56",
 										"exec": [
 											"function guid() {",
 											"  function s4() {",
@@ -1034,7 +1086,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"id": "dd90b839-f814-4e22-bd86-bdbcb3c16b3d",
 										"exec": [
 											"pm.test(\"Status code is 201 created\", function () {",
 											"    pm.response.to.have.status(201);",
@@ -1229,7 +1281,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "302c6309-ca1e-4188-8073-9392b4325a8e",
+										"id": "fe1bb149-1a48-4b2a-bfe1-1f7d1db91887",
 										"exec": [
 											"pm.test(\"Status code is 200\", function () {",
 											"    pm.response.to.have.status(200);",
@@ -1366,10 +1418,6 @@
 							"request": {
 								"method": "GET",
 								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}{{contributionPath}}",
 									"protocol": "{{Protocol}}",
@@ -1387,7 +1435,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "302c6309-ca1e-4188-8073-9392b4325a8e",
+										"id": "e91b13bd-cf9c-4454-8b40-bf56dcd090d4",
 										"exec": [
 											"pm.test(\"Status code is 404 not found\", function () {",
 											"    pm.response.to.have.status(404);",
@@ -1402,10 +1450,6 @@
 							"request": {
 								"method": "GET",
 								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}/contribution/this-one-does-not-exist",
 									"protocol": "{{Protocol}}",
@@ -1425,6 +1469,7 @@
 							"response": []
 						}
 					],
+					"protocolProfileBehavior": {},
 					"_postman_isSubFolder": true
 				},
 				{
@@ -1436,7 +1481,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"id": "aabd9f96-88df-4527-b77a-d46792fcbc31",
 										"exec": [
 											"function guid() {",
 											"  function s4() {",
@@ -1454,7 +1499,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"id": "218c1cc1-e458-426e-8c7a-90a65b078004",
 										"exec": [
 											"pm.test(\"Status code is 201 created\", function () {",
 											"    pm.response.to.have.status(201);",
@@ -1557,7 +1602,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"id": "3e2507cd-158a-4537-9ddc-e4b23fb6a826",
 										"exec": [
 											""
 										],
@@ -1567,7 +1612,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"id": "716e8558-6faf-4d84-8a7b-ba084a62dd4c",
 										"exec": [
 											"pm.test(\"Status code is 200\", function () {",
 											"    pm.response.to.have.status(200);",
@@ -1643,10 +1688,6 @@
 										"value": "code_string=\"532\""
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}{{folderPath}}",
 									"protocol": "{{Protocol}}",
@@ -1664,7 +1705,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"id": "80ef588b-ca5d-4dc3-a28a-a2bfed13f512",
 										"exec": [
 											""
 										],
@@ -1674,7 +1715,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"id": "e9b4d90f-98d5-4b32-a919-dd44166d0323",
 										"exec": [
 											"pm.test(\"Status code is 204 no content\", function () {",
 											"    pm.response.to.have.status(204);",
@@ -1710,10 +1751,6 @@
 										"value": "code_string=\"532\""
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}{{folderPath}}?path=nonexistingpath/",
 									"protocol": "{{Protocol}}",
@@ -1737,7 +1774,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"id": "0e7a2772-e5c4-4c2a-89dc-85f2a6c592f3",
 										"exec": [
 											""
 										],
@@ -1747,7 +1784,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"id": "ab5ddeeb-ad0d-4fdd-9d32-900548b46b9c",
 										"exec": [
 											"pm.test(\"Status code is 404 not found\", function () {",
 											"    pm.response.to.have.status(404);",
@@ -1783,10 +1820,6 @@
 										"value": "code_string=\"532\""
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
 								"url": {
 									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/ehr/{{newGuid}}/directory/{{folderUid}}",
 									"protocol": "{{Protocol}}",
@@ -1810,7 +1843,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"id": "0ae4c424-4602-4dd1-9539-0b4e4e01c577",
 										"exec": [
 											""
 										],
@@ -1820,7 +1853,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"id": "681ffebe-00aa-47f0-9990-c2c45198b12a",
 										"exec": [
 											"pm.test(\"Status code is 400 bad request\", function () {",
 											"    pm.response.to.have.status(400);",
@@ -1858,7 +1891,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": ""
+									"raw": "\r\n{\r\n}"
 								},
 								"url": {
 									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}/directory",
@@ -1883,7 +1916,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"id": "2e6968b7-0f86-48a3-9c2b-5f8f4ca93cfd",
 										"exec": [
 											"function guid() {",
 											"  function s4() {",
@@ -1901,7 +1934,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"id": "cad2e5ae-752f-4aac-8b3f-4d5b9d29d51a",
 										"exec": [
 											"pm.test(\"Status code is 404 not found\", function () {",
 											"    pm.response.to.have.status(404);",
@@ -1958,6 +1991,7 @@
 							"response": []
 						}
 					],
+					"protocolProfileBehavior": {},
 					"_postman_isSubFolder": true
 				},
 				{
@@ -1969,7 +2003,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"id": "03a6ac65-4cb0-44ff-9cfe-8d94c1a57c8d",
 										"exec": [
 											""
 										],
@@ -1979,7 +2013,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"id": "02ce88e3-ae96-44b6-8ddc-20a00f01fe66",
 										"exec": [
 											"pm.test(\"Status code is 200\", function () {",
 											"    pm.response.to.have.status(200);",
@@ -2075,9 +2109,11 @@
 							"response": []
 						}
 					],
+					"protocolProfileBehavior": {},
 					"_postman_isSubFolder": true
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
 			"name": "Query",
@@ -2088,7 +2124,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "899fbbdd-513c-492c-8a90-31a9bc1ecebf",
+								"id": "f90daa87-cad3-489c-96da-fb30a8cf28b4",
 								"exec": [
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
@@ -2143,7 +2179,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "d34593d5-47f2-4a18-bbbc-a56f1877904a",
+								"id": "213cbddb-8315-4e92-87f5-7d3178e7c8e5",
 								"exec": [
 									"pm.globals.set(\"q\", \"select c from composition c\");"
 								],
@@ -2154,10 +2190,6 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/query/aql?q={{q}}",
 							"protocol": "{{Protocol}}",
@@ -2186,7 +2218,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "899fbbdd-513c-492c-8a90-31a9bc1ecebf",
+								"id": "def75b36-3813-4229-b9ed-327cd252ca70",
 								"exec": [
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
@@ -2233,7 +2265,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "d34593d5-47f2-4a18-bbbc-a56f1877904a",
+								"id": "0a332361-36f6-4f6e-8934-09eb69ccd26c",
 								"exec": [
 									"pm.globals.set(\"q\", \"select c from composition c\");",
 									"pm.globals.set(\"fetch\", 1);",
@@ -2285,7 +2317,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "899fbbdd-513c-492c-8a90-31a9bc1ecebf",
+								"id": "98d85062-8374-40d1-9d6c-4b22b28dcd0e",
 								"exec": [
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
@@ -2332,7 +2364,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "d34593d5-47f2-4a18-bbbc-a56f1877904a",
+								"id": "106cd001-9ce2-4334-9450-977f09bb6a60",
 								"exec": [
 									"",
 									"pm.globals.set(\"fetch\", 1);",
@@ -2390,7 +2422,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "899fbbdd-513c-492c-8a90-31a9bc1ecebf",
+								"id": "8551e258-d98c-4203-8923-ec0e6b5bd14b",
 								"exec": [
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
@@ -2445,7 +2477,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "88bb750b-1ee5-4171-b07b-8c06815b24f2",
+								"id": "1b882700-c117-4e87-abd5-4b523ac2f4fb",
 								"exec": [
 									"pm.globals.set(\"fetch\", 1);",
 									"pm.globals.set(\"offset\", 1);"
@@ -2457,10 +2489,6 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/query/aql?q=select c from composition c&fetch={{fetch}}&offset={{offset}}",
 							"protocol": "{{Protocol}}",
@@ -2497,7 +2525,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "899fbbdd-513c-492c-8a90-31a9bc1ecebf",
+								"id": "d14f56f7-91d2-47d1-b74e-79f830b4b9fa",
 								"exec": [
 									"pm.test(\"Status code is 400 bad request\", function () {",
 									"    pm.response.to.have.status(400);",
@@ -2510,12 +2538,8 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
-							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/query/aql?q=select ",
+							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/query/aql?q=select",
 							"protocol": "{{Protocol}}",
 							"host": [
 								"{{ServerHostname}}"
@@ -2529,7 +2553,7 @@
 							"query": [
 								{
 									"key": "q",
-									"value": "select "
+									"value": "select"
 								}
 							]
 						}
@@ -2542,7 +2566,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "899fbbdd-513c-492c-8a90-31a9bc1ecebf",
+								"id": "845bc58b-9699-4fad-9320-c4f4ccfec748",
 								"exec": [
 									"pm.test(\"Status code is 400 bad request\", function () {",
 									"    pm.response.to.have.status(400);",
@@ -2567,7 +2591,7 @@
 							"raw": "{\n\t\"q\": \"select\"\n}"
 						},
 						"url": {
-							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/query/aql?",
+							"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/query/aql",
 							"protocol": "{{Protocol}}",
 							"host": [
 								"{{ServerHostname}}"
@@ -2589,7 +2613,8 @@
 					},
 					"response": []
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
 			"name": "Definition",
@@ -2603,7 +2628,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"id": "7c6fe7be-64cb-49b2-ae04-1f92767587ba",
 										"exec": [
 											"function guid() {",
 											"  function s4() {",
@@ -2621,7 +2646,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"id": "60494522-a9cf-4ac1-b833-1d186b11c42d",
 										"exec": [
 											"pm.test(\"Status code is 201 created\", function () {",
 											"    pm.response.to.have.status(201);",
@@ -2722,7 +2747,7 @@
 											"          \"type\": \"array\",",
 											"          \"items\": {",
 											"            \"type\": \"object\",",
-											"            \"required\": [\"language\", \"purpose\"],",
+											"            \"required\": [\"language\", \"purpose\",\"original_resource_uri\", \"other_details\"],",
 											"            \"properties\": {",
 											"              \"language\": {",
 											"                \"type\": \"object\",",
@@ -2791,7 +2816,8 @@
 											"        },",
 											"        \"occurrences\": {",
 											"          \"type\": \"object\",",
-											"          \"required\": [\"lower_included\", \"upper_included\", \"lower\",\"upper\"],",
+											"          \"required\": [\"lower_included\", \"upper_included\",\"lower_unbounded\",",
+											"                        \"upper_unbounded\",\"lower\",\"upper\"],",
 											"          \"properties\": {",
 											"            \"lower_included\": {",
 											"              \"type\": \"boolean\"",
@@ -3172,7 +3198,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"id": "fd06f41f-16a9-440b-94c7-55865b15c01d",
 										"exec": [
 											"function guid() {",
 											"  function s4() {",
@@ -3190,7 +3216,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"id": "94fdb9c5-f6e0-49eb-b7d5-d686e47384bd",
 										"exec": [
 											"pm.test(\"Status code is 200\", function () {",
 											"    pm.response.to.have.status(200);",
@@ -3198,7 +3224,7 @@
 											"",
 											"var schema = {",
 											"  \"type\": \"object\",",
-											"  \"required\": [\"_created\",\"_generator\",\"language\",",
+											"  \"required\": [\"language\",",
 											"                \"description\",\"uid\", \"template_id\",",
 											"                \"concept\",\"definition\"],",
 											"  \"properties\": {",
@@ -3360,7 +3386,8 @@
 											"        },",
 											"        \"occurrences\": {",
 											"          \"type\": \"object\",",
-											"          \"required\": [\"lower_included\", \"upper_included\",\"lower\",\"upper\"],",
+											"          \"required\": [\"lower_included\", \"upper_included\",\"lower_unbounded\",",
+											"                        \"upper_unbounded\",\"lower\",\"upper\"],",
 											"          \"properties\": {",
 											"            \"lower_included\": {",
 											"              \"type\": \"boolean\"",
@@ -3733,7 +3760,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"id": "e7760c90-4969-4613-a16f-bcf7609fa9ba",
+										"id": "9b584f0c-0bc4-4c77-9ca8-7355cb3b13a5",
 										"exec": [
 											"function guid() {",
 											"  function s4() {",
@@ -3751,7 +3778,7 @@
 								{
 									"listen": "test",
 									"script": {
-										"id": "d137a773-308f-4a45-b07f-a86f439c74bd",
+										"id": "79c2f468-5c1c-49eb-a948-21864082ba88",
 										"exec": [
 											"pm.test(\"Status code is 200\", function () {",
 											"    pm.response.to.have.status(200);",
@@ -3861,32 +3888,34 @@
 							"response": []
 						}
 					],
+					"protocolProfileBehavior": {},
 					"_postman_isSubFolder": true
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		}
 	],
 	"event": [
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "89427a6e-4bde-405e-afa8-67171961abcc",
+				"id": "f7c75c32-71ed-4ac1-9121-fa6231788ba5",
 				"type": "text/javascript",
 				"exec": [
 					"",
 					"",
-					"if(!pm.globals.get(\"Protocol\")){",
-					"    pm.globals.set(\"Protocol\", \"http\");",
+					"if (!pm.globals.get(\"Protocol\")) {",
+					"    pm.globals.set(\"Protocol\", \"https\");",
 					"}",
-					"if(!pm.globals.get(\"ServerHostname\")){",
+					"if (!pm.globals.get(\"ServerHostname\")) {",
 					"    pm.globals.set(\"ServerHostname\", \"localhost\");",
 					"}",
 					"",
-					"if(!pm.globals.get(\"ServerPort\")){",
-					"    pm.globals.set(\"ServerPort\", \"9000\");",
+					"if (!pm.globals.get(\"ServerPort\")) {",
+					"    pm.globals.set(\"ServerPort\", \"4443\");",
 					"}",
 					"",
-					"if(!pm.globals.get(\"BasePath\")){",
+					"if (!pm.globals.get(\"BasePath\")) {",
 					"    pm.globals.set(\"BasePath\", \"openehr\");",
 					"}",
 					""
@@ -3896,12 +3925,30 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "90f19af6-a02a-40f4-8a08-46c760c598f5",
+				"id": "d43ee65e-5d4b-417e-829f-df537a9fb74e",
 				"type": "text/javascript",
 				"exec": [
 					""
 				]
 			}
 		}
-	]
+	],
+	"variable": [
+		{
+			"id": "6477a597-66b3-4228-9cf2-3ad62246be98",
+			"key": "ServerHostname",
+			"value": "localhost"
+		},
+		{
+			"id": "91a56aac-5743-4926-b825-c2c6e74151f4",
+			"key": "Protocol",
+			"value": "http"
+		},
+		{
+			"id": "acc21256-216e-4423-9a7e-f87f7aa27ad2",
+			"key": "ServerPort",
+			"value": "9000"
+		}
+	],
+	"protocolProfileBehavior": {}
 }
