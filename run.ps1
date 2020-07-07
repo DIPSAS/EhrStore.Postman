@@ -70,7 +70,7 @@ Write-Host $message
 
 # Run newman tests for all json files named *collection.json in the src/ folder
 exec { &  Get-ChildItem -Path "src\*collection.json" -Recurse | Sort-Object Length -Descending | ForEach-Object {
-    newman run $_.FullName  --global-var "Protocol=$serverProtocol" --global-var "ServerHostname=$serverHostname" --global-var "ServerPort=$serverPort" --global-var "BasePath=openehr" -k -n $iterations -r teamcity,cli
+    newman run $_.FullName  --global-var "Protocol=$serverProtocol" --global-var "ServerHostname=$serverHostname" --global-var "ServerPort=$serverPort" --global-var "BasePath=openehr" -k -n $iterations -r 'teamcity,cli'
     }
 }
 
