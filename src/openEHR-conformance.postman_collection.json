@@ -2244,7 +2244,7 @@
 									"                \"_generator\" : {\"type\":\"string\"},",
 									"                \"_executed_aql\" : {\"type\":\"string\"}",
 									"            },",
-									"            \"required\" : [\"_type\", \"_schema_version\", \"_created\", \"_generator\"]",
+									"            \"required\" : []",
 									"        },",
 									"        \"required\" : [\"_type\",\"totalResults\",\"columns\",\"rows\",\"meta\"]",
 									"    } ",
@@ -2343,7 +2343,7 @@
 									"                \"_generator\" : {\"type\":\"string\"},",
 									"                \"_executed_aql\" : {\"type\":\"string\"}",
 									"            },",
-									"            \"required\" : [\"_type\", \"_schema_version\", \"_created\", \"_generator\"]",
+									"            \"required\" : []",
 									"        },",
 									"        \"required\" : [\"_type\",\"totalResults\",\"columns\",\"rows\",\"meta\"]",
 									"    } ",
@@ -2654,7 +2654,7 @@
 											"",
 											"var schema = {",
 											"  \"type\": \"object\",",
-											"  \"required\": [\"_created\",\"_generator\",\"language\",",
+											"  \"required\": [\"language\",",
 											"                \"description\",\"uid\", \"template_id\",",
 											"                \"concept\",\"definition\"],",
 											"  \"properties\": {",
@@ -2747,7 +2747,7 @@
 											"          \"type\": \"array\",",
 											"          \"items\": {",
 											"            \"type\": \"object\",",
-											"            \"required\": [\"language\", \"purpose\",\"original_resource_uri\", \"other_details\"],",
+											"            \"required\": [\"language\", \"purpose\"],",
 											"            \"properties\": {",
 											"              \"language\": {",
 											"                \"type\": \"object\",",
@@ -3122,6 +3122,7 @@
 											"    }",
 											"  }",
 											"};",
+											"",
 											"",
 											"template = JSON.parse(responseBody)",
 											"validationResult = tv4.validate(template, schema);",
@@ -3935,17 +3936,17 @@
 	],
 	"variable": [
 		{
-			"id": "bbbef06c-9651-4d51-bfa7-70c842c4f809",
+			"id": "7769d5fa-0c01-4562-bba8-8478b47f25ac",
 			"key": "ServerHostname",
 			"value": "localhost"
 		},
 		{
-			"id": "bd4e69a8-b082-4c13-9024-ab66293832b4",
+			"id": "ed2bdf24-06af-4dd5-9e84-ba8380ef008a",
 			"key": "Protocol",
 			"value": "http"
 		},
 		{
-			"id": "c25e4fc4-2c7b-4f16-85d4-2806367a8fa5",
+			"id": "b92a75f6-c390-431a-a4a3-d3238c312cba",
 			"key": "ServerPort",
 			"value": "9000"
 		}
