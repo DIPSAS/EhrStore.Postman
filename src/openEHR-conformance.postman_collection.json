@@ -2450,11 +2450,12 @@
 									"                \"_generator\" : {\"type\":\"string\"},",
 									"                \"_executed_aql\" : {\"type\":\"string\"}",
 									"            },",
-									"            \"required\" : [\"_type\", \"_schema_version\", \"_created\", \"_generator\"]",
+									"            \"required\" : []",
 									"        },",
 									"        \"required\" : [\"_type\",\"totalResults\",\"columns\",\"rows\",\"meta\"]",
 									"    } ",
 									"}",
+									"",
 									"",
 									"resultSet = JSON.parse(responseBody);",
 									"var validationResult = tv4.validate(resultSet, resultSetSchema);",
@@ -3936,17 +3937,17 @@
 	],
 	"variable": [
 		{
-			"id": "7769d5fa-0c01-4562-bba8-8478b47f25ac",
+			"id": "9290fc06-5f5c-4a66-a535-19b8a03224b2",
 			"key": "ServerHostname",
 			"value": "localhost"
 		},
 		{
-			"id": "ed2bdf24-06af-4dd5-9e84-ba8380ef008a",
+			"id": "868adcf0-8114-42af-baa1-07a3f447efd8",
 			"key": "Protocol",
 			"value": "http"
 		},
 		{
-			"id": "b92a75f6-c390-431a-a4a3-d3238c312cba",
+			"id": "11d3f92d-d0cd-495e-98d7-fc8e874dacda",
 			"key": "ServerPort",
 			"value": "9000"
 		}
