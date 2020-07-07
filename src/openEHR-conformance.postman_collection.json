@@ -1891,7 +1891,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "\r\n{\r\n}"
+									"raw": ""
 								},
 								"url": {
 									"raw": "{{Protocol}}://{{ServerHostname}}:{{ServerPort}}/{{BasePath}}/ehr/{{EhrId}}/directory",
@@ -3937,17 +3937,17 @@
 	],
 	"variable": [
 		{
-			"id": "9290fc06-5f5c-4a66-a535-19b8a03224b2",
+			"id": "6831c2d2-b96b-42aa-8349-521da316f7c2",
 			"key": "ServerHostname",
 			"value": "localhost"
 		},
 		{
-			"id": "868adcf0-8114-42af-baa1-07a3f447efd8",
+			"id": "c53988bb-eb88-4e1c-828c-c7f4e3b4d86f",
 			"key": "Protocol",
 			"value": "http"
 		},
 		{
-			"id": "11d3f92d-d0cd-495e-98d7-fc8e874dacda",
+			"id": "47f4f7c9-3bba-4e88-85c7-e785c86d9d24",
 			"key": "ServerPort",
 			"value": "9000"
 		}
